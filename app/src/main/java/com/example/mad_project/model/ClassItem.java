@@ -1,23 +1,66 @@
 package com.example.mad_project.model;
 
 public class ClassItem {
-    private String classTitle;
-    private String description;
+    private String id;
+    private String title;
     private String teacherName;
-    private int pendingAssignments;
-    private int imageResId;
+    private String description;
+    private int iconResId;
+    private String status;
 
-    public ClassItem(String classTitle, String description, String teacherName, int pendingAssignments, int imageResId) {
-        this.classTitle = classTitle;
+    public ClassItem(String id, String title, String description, int iconResId, String status) {
+        this.id = id;
+        this.title = title;
         this.description = description;
-        this.teacherName = teacherName;
-        this.pendingAssignments = pendingAssignments;
-        this.imageResId = imageResId;
+        this.iconResId = iconResId;
+        this.status = status;
     }
 
-    public String getClassTitle() { return classTitle; }
-    public String getDescription() { return description; }
-    public String getTeacherName() { return teacherName; }
-    public int getPendingAssignments() { return pendingAssignments; }
-    public int getImageResId() { return imageResId; }
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getTeacherName() {
+        return teacherName;
+    }
+
+    public void setTeacherName(String teacherName) {
+        this.teacherName = teacherName;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public int getIconResId() {
+        return iconResId;
+    }
+
+    public void setIconResId(int iconResId) {
+        this.iconResId = iconResId;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
 }

@@ -1,6 +1,7 @@
 package com.example.mad_project.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +11,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.mad_project.ClassActivity;
 import com.example.mad_project.R;
 import com.example.mad_project.model.ClassItem;
 
@@ -35,11 +37,22 @@ public class ClassAdapter extends RecyclerView.Adapter<ClassAdapter.ClassViewHol
     @Override
     public void onBindViewHolder(@NonNull ClassViewHolder holder, int position) {
         ClassItem item = classList.get(position);
-        holder.title.setText(item.getClassTitle());
+        holder.title.setText(item.getTitle());
         holder.description.setText(item.getDescription());
         holder.teacher.setText("By " + item.getTeacherName());
-        holder.assignments.setText(String.valueOf(item.getPendingAssignments()));
-        holder.image.setImageResource(item.getImageResId());
+        holder.assignments.setText(String.valueOf(item.getStatus()));
+        holder.image.setImageResource(item.getIconResId());
+
+        // Handle item click to launch ClassActivity
+        holder.itemView.setOnClickListener(v -> {
+            Intent intent = new Intent(context, ClassActivity.class);
+            intent.putExtra("CLASS_ID", item.getId());
+            intent.putExtra("CLASS_TITLE", item.getTitle());
+            intent.putExtra("CLASS_DESCRIPTION", item.getDescription());
+            intent.putExtra("CLASS_STATUS", item.getStatus());
+            intent.putExtra("CLASS_TEACHER", item.getTeacherName());
+            context.startActivity(intent);
+        });
     }
 
     @Override

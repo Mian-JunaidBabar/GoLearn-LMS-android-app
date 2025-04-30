@@ -30,10 +30,9 @@ public class DashboardFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
         List<ClassItem> classList = new ArrayList<>();
-        classList.add(new ClassItem("Mathematics", "Weekly problem-solving class", "Mr. Khan", 3, R.drawable.ic_class));
-        classList.add(new ClassItem("Biology", "Plant cell discussion", "Dr. Ahmed", 1, R.drawable.ic_class));
-        classList.add(new ClassItem("English", "Essay writing tips", "Ms. Sara", 2, R.drawable.ic_class));
-
+        classList.add(new ClassItem("1", "Mathematics", "Weekly problem-solving class", R.drawable.ic_class, "Mr. Khan"));
+        classList.add(new ClassItem("2", "Biology", "Plant cell discussion", R.drawable.ic_class, "Dr. Ahmed"));
+        classList.add(new ClassItem("3", "English", "Essay writing tips", R.drawable.ic_class, "Ms. Sara"));
         ClassAdapter adapter = new ClassAdapter(getContext(), classList);
         recyclerView.setAdapter(adapter);
 

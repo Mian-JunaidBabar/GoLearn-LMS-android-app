@@ -6,23 +6,37 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 
-import com.example.mad_project.R;
-import com.example.mad_project.fragment.*;
+import com.example.mad_project.fragment.ClassAssignmentsFragment;
+import com.example.mad_project.fragment.ClassCommentsFragment;
+import com.example.mad_project.fragment.ClassHomeFragment;
+import com.example.mad_project.fragment.ClassPeopleFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.example.mad_project.util.*;
 
 public class ClassActivity extends AppCompatActivity {
-
-    public static String CLASS_TITLE = "AI Basics";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_class);
 
+        // Retrieve data from Intent
+        String classId = getIntent().getStringExtra("CLASS_ID");
+        String title = getIntent().getStringExtra("CLASS_TITLE");
+        String desc = getIntent().getStringExtra("CLASS_DESCRIPTION");
+        String teacher = getIntent().getStringExtra("TEACHER_NAME");
+
+        // Set up Toolbar
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        toolbar.setTitle(CLASS_TITLE);
+        toolbar.setTitle(title);
 
+        // Store values in static/global vars for fragments
+        ClassDataHolder.classId = classId;
+        ClassDataHolder.description = desc;
+        ClassDataHolder.teacher = teacher;
+
+        // Set up BottomNavigationView
         BottomNavigationView bottomNav = findViewById(R.id.bottom_navigation);
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new ClassHomeFragment()).commit();
 
