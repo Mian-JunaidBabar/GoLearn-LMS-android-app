@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Primary Brand Colors -->
+    <color name="brightSkyBlue">#00AEEF</color> <!-- "Go" -->
+    <color name="darkNavyBlue">#0B1D5C</color> <!-- "Learn" + Cap -->
+    <color name="freshGreen">#2EBA36</color> <!-- "Hub" -->
+    <color name="lightBlue">#2EB2F5</color> <!-- Background Circle -->
+    <color name="white">#FFFFFF</color>
+
+    <!-- UI Specific Colors -->
+    <color name="backgroundColor">#F8FAFD</color> <!-- Light background for activities -->
+    <color name="primaryColor">#0B1D5C</color> <!-- Primary buttons and titles (dark navy) -->
+    <color name="accentColor">#00AEEF</color> <!-- Highlights and active elements -->
+    <color name="buttonColor">#2EBA36</color> <!-- Action buttons (Submit, Sign In) -->
+    <color name="errorColor">#FF3B30</color> <!-- For input errors -->
+    <color name="textPrimary">#212121</color> <!-- Normal text color -->
+    <color name="textSecondary">#757575</color> <!-- Hints, secondary text -->
+
+</resources>
