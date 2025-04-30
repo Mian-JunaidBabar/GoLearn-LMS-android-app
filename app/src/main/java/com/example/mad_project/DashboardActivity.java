@@ -14,6 +14,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+import com.example.mad_project.fragment.*;
 import com.google.android.material.navigation.NavigationView;
 
 public class DashboardActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -25,6 +26,7 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_dashboard);
+
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -44,10 +46,9 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
         toggle.syncState();
 
         if (savedInstanceState == null) {
-            // Set the default fragment when the activity is first created
-//            getSupportFragmentManager().beginTransaction()
-//                    .replace(R.id.fragment_container, new HomeFragment()).commit();
-//            navigationView.setCheckedItem(R.id.nav_home);
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_container, new DashboardFragment()).commit();
+            navigationView.setCheckedItem(R.id.nav_home);
         }
     }
 
