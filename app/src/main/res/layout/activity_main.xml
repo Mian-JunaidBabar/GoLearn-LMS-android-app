@@ -4,13 +4,13 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/primaryColor"
-    android:padding="100dp">
+    android:background="@color/primaryColor">
 
     <ImageView
         android:id="@+id/logoImage"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_margin="60dp"
         android:src="@drawable/logo_no_bg"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
