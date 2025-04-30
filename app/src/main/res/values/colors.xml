@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
 
     <!-- Primary Brand Colors -->
     <color name="brightSkyBlue">#00AEEF</color> <!-- "Go" -->
     <color name="darkNavyBlue">#0B1D5C</color> <!-- "Learn" + Cap -->
     <color name="freshGreen">#2EBA36</color> <!-- "Hub" -->
     <color name="lightBlue">#2EB2F5</color> <!-- Background Circle -->
-    <color name="white">#FFFFFF</color>
 
     <!-- UI Specific Colors -->
     <color name="backgroundColor">#F8FAFD</color> <!-- Light background for activities -->
