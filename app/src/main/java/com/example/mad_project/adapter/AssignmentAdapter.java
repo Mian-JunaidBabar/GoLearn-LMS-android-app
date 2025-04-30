@@ -10,7 +10,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.mad_project.R;
 import com.example.mad_project.model.*;
-
 import java.util.List;
 
 public class AssignmentAdapter extends RecyclerView.Adapter<AssignmentAdapter.AssignmentViewHolder> {
@@ -24,17 +23,17 @@ public class AssignmentAdapter extends RecyclerView.Adapter<AssignmentAdapter.As
     @NonNull
     @Override
     public AssignmentViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_assignment, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_assignment, parent, false);
         return new AssignmentViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull AssignmentViewHolder holder, int position) {
-        AssignmentItem model = assignmentList.get(position);
-        holder.title.setText(model.getTitle());
-        holder.due.setText("Due: " + model.getDueDate());
-        holder.status.setText(model.getStatus());
+        AssignmentItem assignment = assignmentList.get(position);
+        holder.title.setText(assignment.getTitle());
+        holder.dueDate.setText("Due: " + assignment.getDueDate());
+        holder.status.setText(assignment.isSubmitted() ? "Submitted" : "Pending");
+        holder.points.setText("Points: " + assignment.getPoints());
     }
 
     @Override
@@ -43,13 +42,14 @@ public class AssignmentAdapter extends RecyclerView.Adapter<AssignmentAdapter.As
     }
 
     public static class AssignmentViewHolder extends RecyclerView.ViewHolder {
-        TextView title, due, status;
+        TextView title, dueDate, status, points;
 
         public AssignmentViewHolder(@NonNull View itemView) {
             super(itemView);
             title = itemView.findViewById(R.id.assignment_title);
-            due = itemView.findViewById(R.id.assignment_due);
+            dueDate = itemView.findViewById(R.id.assignment_due);
             status = itemView.findViewById(R.id.assignment_status);
+            points = itemView.findViewById(R.id.assignment_points);
         }
     }
 }

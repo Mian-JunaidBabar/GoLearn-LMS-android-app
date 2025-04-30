@@ -53,9 +53,14 @@ public class ClassHomeFragment extends Fragment {
 
         // Static pending assignments
         assignmentList = new ArrayList<>();
-        assignmentList.add(new AssignmentItem("AI Project Proposal", "1 May 2024", "Pending"));
-        assignmentList.add(new AssignmentItem("ML Lab 1", "4 May 2024", "Pending"));
-        assignmentList.add(new AssignmentItem("AI Quiz", "6 May 2024", "Pending"));
+        assignmentList.add(new AssignmentItem("Math Homework", "2025-05-03", false, "10"));
+        assignmentList.add(new AssignmentItem("Science Report", "2025-05-04", true, "20"));
+        assignmentList.add(new AssignmentItem("History Essay", "2025-05-05", false, "15"));
+        assignmentList.add(new AssignmentItem("Math Homework", "2025-05-03", false, "10"));
+        assignmentList.add(new AssignmentItem("Science Report", "2025-05-04", true, "20"));
+        assignmentList.add(new AssignmentItem("Art Project", "2025-05-06", true, "25"));
+        assignmentList.add(new AssignmentItem("Computer Science Project", "2025-05-07", false, "30"));
+        assignmentList.add(new AssignmentItem("Math Homework", "2025-05-03", false, "10"));
 
         AssignmentAdapter adapter = new AssignmentAdapter(assignmentList);
         rvAssignments.setLayoutManager(new LinearLayoutManager(getContext()));

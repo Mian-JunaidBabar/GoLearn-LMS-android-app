@@ -33,6 +33,10 @@ public class DashboardFragment extends Fragment {
         classList.add(new ClassItem("1", "Mathematics", "Weekly problem-solving class", R.drawable.ic_class, "Mr. Khan"));
         classList.add(new ClassItem("2", "Biology", "Plant cell discussion", R.drawable.ic_class, "Dr. Ahmed"));
         classList.add(new ClassItem("3", "English", "Essay writing tips", R.drawable.ic_class, "Ms. Sara"));
+        classList.add(new ClassItem("4", "Physics", "Quantum mechanics overview", R.drawable.ic_class, "Dr. Smith"));
+        classList.add(new ClassItem("5", "Chemistry", "Organic chemistry basics", R.drawable.ic_class, "Ms. Johnson"));
+        classList.add(new ClassItem("6", "History", "World War II analysis", R.drawable.ic_class, "Mr. Brown"));
+
         ClassAdapter adapter = new ClassAdapter(getContext(), classList);
         recyclerView.setAdapter(adapter);
 
