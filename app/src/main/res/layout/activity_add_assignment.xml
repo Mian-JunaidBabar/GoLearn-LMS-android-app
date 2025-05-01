@@ -40,7 +40,11 @@
                 android:id="@+id/et_due_date"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Due Date (e.g. 2025-05-10)" />
+                android:clickable="true"
+                android:focusable="false"
+                android:hint="Due Date"
+                android:inputType="none" />
+
 
             <EditText
                 android:id="@+id/et_total_points"
