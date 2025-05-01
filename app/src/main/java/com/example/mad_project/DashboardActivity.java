@@ -1,5 +1,6 @@
 package com.example.mad_project;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 
@@ -54,6 +55,10 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.nav_teacher_classes) {
+            startActivity(new Intent(this, TeacherClassesActivity.class));
+        }
+
         drawerLayout.closeDrawer(GravityCompat.START);
         return true;
     }
