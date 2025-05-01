@@ -5,7 +5,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.mad_project.R;
@@ -13,7 +12,9 @@ import com.example.mad_project.model.CommentItem;
 
 import java.util.List;
 
-public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentViewHolder> {
+public class CommentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+    private static final int TYPE_SENT = 0;
+    private static final int TYPE_RECEIVED = 1;
 
     private List<CommentItem> commentList;
 
@@ -21,19 +22,21 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
         this.commentList = commentList;
     }
 
-    @NonNull
     @Override
-    public CommentViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_comment, parent, false);
-        return new CommentViewHolder(view);
+    public int getItemViewType(int position) {
+        return commentList.get(position).isSentByMe() ? TYPE_SENT : TYPE_RECEIVED;
     }
 
     @Override
-    public void onBindViewHolder(@NonNull CommentViewHolder holder, int position) {
-        CommentItem comment = commentList.get(position);
-        holder.tvSender.setText(comment.getSender());
-        holder.tvMessage.setText(comment.getMessage());
-        holder.tvTime.setText(comment.getTime());
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(viewType == TYPE_SENT ? R.layout.item_comment_sent : R.layout.item_comment_received, parent, false);
+        return new MessageViewHolder(view);
+    }
+
+    @Override
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+        ((MessageViewHolder) holder).bind(commentList.get(position));
     }
 
     @Override
@@ -41,14 +44,16 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
         return commentList.size();
     }
 
-    static class CommentViewHolder extends RecyclerView.ViewHolder {
-        TextView tvSender, tvMessage, tvTime;
+    static class MessageViewHolder extends RecyclerView.ViewHolder {
+        TextView messageText;
 
-        public CommentViewHolder(@NonNull View itemView) {
+        public MessageViewHolder(View itemView) {
             super(itemView);
-            tvSender = itemView.findViewById(R.id.tvSender);
-            tvMessage = itemView.findViewById(R.id.tvMessage);
-            tvTime = itemView.findViewById(R.id.tvTime);
+            messageText = itemView.findViewById(R.id.message_text);
+        }
+
+        public void bind(CommentItem comment) {
+            messageText.setText(comment.getMessage());
         }
     }
 }

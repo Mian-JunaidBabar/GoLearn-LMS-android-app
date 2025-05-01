@@ -7,9 +7,10 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 
 import com.example.mad_project.fragment.ClassAssignmentsFragment;
-import com.example.mad_project.fragment.ClassCommentsFragment;
+import com.example.mad_project.fragment.CommentFragment;
 import com.example.mad_project.fragment.ClassHomeFragment;
 import com.example.mad_project.fragment.ClassPeopleFragment;
+import com.example.mad_project.fragment.CommentFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.example.mad_project.util.*;
 
@@ -50,7 +51,7 @@ public class ClassActivity extends AppCompatActivity {
             } else if (item.getItemId() == R.id.nav_people) {
                 selected = new ClassPeopleFragment();
             } else if (item.getItemId() == R.id.nav_comments) {
-                selected = new ClassCommentsFragment();
+                selected = new CommentFragment();
             }
 
             if (selected != null) {

@@ -40,7 +40,7 @@ public class ManageClassActivity extends AppCompatActivity {
             } else if (item.getItemId() == R.id.nav_manage_people) {
                 selected = new ManagePeopleFragment();
             } else if (item.getItemId() == R.id.nav_manage_chat) {
-                selected = new ManageCommentsFragment();
+                selected = new CommentFragment();
             }
 
             if (selected != null) {
