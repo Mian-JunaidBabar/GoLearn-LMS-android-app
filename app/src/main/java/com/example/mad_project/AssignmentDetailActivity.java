@@ -5,6 +5,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 public class AssignmentDetailActivity extends AppCompatActivity {
 
@@ -15,6 +16,9 @@ public class AssignmentDetailActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_assignment_detail);
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar); // Use setSupportActionBar for androidx Toolbar
 
         titleText = findViewById(R.id.assignment_title);
         descriptionText = findViewById(R.id.assignment_description);
