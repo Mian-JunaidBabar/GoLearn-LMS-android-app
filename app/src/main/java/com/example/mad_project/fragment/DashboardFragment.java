@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.mad_project.ClassActivity;
 import com.example.mad_project.CreateClassActivity;
 import com.example.mad_project.R;
 import com.example.mad_project.adapter.ClassAdapter;
@@ -47,7 +48,16 @@ public class DashboardFragment extends Fragment {
         classList.add(new ClassItem("5", "Chemistry", "Organic chemistry basics", R.drawable.ic_class, "Ms. Johnson"));
         classList.add(new ClassItem("6", "History", "World War II analysis", R.drawable.ic_class, "Mr. Brown"));
 
-        classAdapter = new ClassAdapter(getContext(), classList);
+        classAdapter = new ClassAdapter(getContext(), classList, classItem -> {
+            // Start the ManageClassActivity with the selected class details
+            Intent intent = new Intent(getContext(), ClassActivity.class);
+            intent.putExtra("classId", classItem.getId());
+            intent.putExtra("classTitle", classItem.getTitle());
+            intent.putExtra("classDesc", classItem.getDescription());
+            intent.putExtra("classIcon", classItem.getIconResId());
+            intent.putExtra("classTeacher", classItem.getTeacherName());
+            startActivity(intent);
+        });
         recyclerView.setAdapter(classAdapter);
 
         // Initialize FloatingActionButton

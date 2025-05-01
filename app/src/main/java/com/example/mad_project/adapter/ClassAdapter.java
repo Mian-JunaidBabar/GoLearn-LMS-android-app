@@ -1,7 +1,6 @@
 package com.example.mad_project.adapter;
 
 import android.content.Context;
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,7 +10,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.mad_project.ClassActivity;
 import com.example.mad_project.R;
 import com.example.mad_project.model.ClassItem;
 
@@ -19,12 +17,18 @@ import java.util.List;
 
 public class ClassAdapter extends RecyclerView.Adapter<ClassAdapter.ClassViewHolder> {
 
+    public interface OnItemClickListener {
+        void onItemClick(ClassItem classItem);
+    }
+
     private Context context;
     private List<ClassItem> classList;
+    private OnItemClickListener listener;
 
-    public ClassAdapter(Context context, List<ClassItem> classList) {
+    public ClassAdapter(Context context, List<ClassItem> classList, OnItemClickListener listener) {
         this.context = context;
         this.classList = classList;
+        this.listener = listener;
     }
 
     @NonNull
@@ -43,16 +47,8 @@ public class ClassAdapter extends RecyclerView.Adapter<ClassAdapter.ClassViewHol
         holder.assignments.setText(String.valueOf(item.getStatus()));
         holder.image.setImageResource(item.getIconResId());
 
-        // Handle item click to launch ClassActivity
-        holder.itemView.setOnClickListener(v -> {
-            Intent intent = new Intent(context, ClassActivity.class);
-            intent.putExtra("CLASS_ID", item.getId());
-            intent.putExtra("CLASS_TITLE", item.getTitle());
-            intent.putExtra("CLASS_DESCRIPTION", item.getDescription());
-            intent.putExtra("CLASS_STATUS", item.getStatus());
-            intent.putExtra("CLASS_TEACHER", item.getTeacherName());
-            context.startActivity(intent);
-        });
+        // Handle item click using the listener
+        holder.itemView.setOnClickListener(v -> listener.onItemClick(item));
     }
 
     @Override
