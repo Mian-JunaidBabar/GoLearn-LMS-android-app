@@ -1,26 +1,34 @@
 package com.example.mad_project.adapter;
 
-import android.content.Intent;
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.mad_project.AssignmentDetailActivity;
 import com.example.mad_project.R;
-import com.example.mad_project.model.*;
+import com.example.mad_project.model.AssignmentItem;
 
 import java.util.List;
 
 public class AssignmentAdapter extends RecyclerView.Adapter<AssignmentAdapter.AssignmentViewHolder> {
 
+    private Context context;
     private List<AssignmentItem> assignmentList;
+    private OnItemClickListener onItemClickListener;
 
-    public AssignmentAdapter(List<AssignmentItem> assignmentList) {
+    public interface OnItemClickListener {
+        void onItemClick(AssignmentItem item);
+    }
+
+    public AssignmentAdapter(Context context, List<AssignmentItem> assignmentList, OnItemClickListener onItemClickListener) {
+        this.context = context;
         this.assignmentList = assignmentList;
+        this.onItemClickListener = onItemClickListener;
     }
 
     @NonNull
@@ -33,22 +41,24 @@ public class AssignmentAdapter extends RecyclerView.Adapter<AssignmentAdapter.As
     @Override
     public void onBindViewHolder(@NonNull AssignmentViewHolder holder, int position) {
         AssignmentItem assignment = assignmentList.get(position);
-        holder.title.setText(assignment.getTitle());
-        holder.dueDate.setText("Due: " + assignment.getDueDate());
-        holder.status.setText(assignment.isSubmitted() ? "Submitted" : "Pending");
-        holder.points.setText("Points: " + assignment.getPoints());
 
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(v.getContext(), AssignmentDetailActivity.class);
-                intent.putExtra("title", assignment.getTitle());
-                intent.putExtra("description", assignment.getDescription());
-                intent.putExtra("isSubmitted", assignment.isSubmitted());
-                intent.putExtra("grade", assignment.getGrade());
-                intent.putExtra("points", assignment.getPoints());
-                v.getContext().startActivity(intent);
-            }
+        // Ensure all TextViews are properly set
+        if (holder.title != null) {
+            holder.title.setText(assignment.getTitle());
+        }
+        if (holder.dueDate != null) {
+            holder.dueDate.setText("Due: " + assignment.getDueDate());
+        }
+        if (holder.points != null) {
+            holder.points.setText("Points: " + assignment.getPoints());
+        }
+        if (holder.description != null) {
+            holder.description.setText(assignment.getDescription());
+        }
+
+        holder.itemView.setOnClickListener(v -> {
+            onItemClickListener.onItemClick(assignment);
+            Toast.makeText(context, "Clicked: " + assignment.getTitle(), Toast.LENGTH_SHORT).show();
         });
     }
 
@@ -58,14 +68,14 @@ public class AssignmentAdapter extends RecyclerView.Adapter<AssignmentAdapter.As
     }
 
     public static class AssignmentViewHolder extends RecyclerView.ViewHolder {
-        TextView title, dueDate, status, points;
+        TextView title, dueDate, points, description;
 
         public AssignmentViewHolder(@NonNull View itemView) {
             super(itemView);
             title = itemView.findViewById(R.id.assignment_title);
             dueDate = itemView.findViewById(R.id.assignment_due);
-            status = itemView.findViewById(R.id.assignment_status);
             points = itemView.findViewById(R.id.assignment_points);
+            description = itemView.findViewById(R.id.assignment_description);
         }
     }
 }

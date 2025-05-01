@@ -35,15 +35,6 @@
                 android:textSize="16sp" />
 
             <TextView
-                android:id="@+id/assignment_status"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Pending"
-                android:textColor="@color/redAlert"
-                android:textSize="14sp"
-                android:textStyle="italic" />
-
-            <TextView
                 android:id="@+id/assignment_points"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
