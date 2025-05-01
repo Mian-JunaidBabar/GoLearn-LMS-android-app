@@ -1,20 +1,25 @@
 package com.example.mad_project.fragment;
 
-import android.app.AlertDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.mad_project.CreateClassActivity;
+import com.example.mad_project.DashboardActivity;
 import com.example.mad_project.R;
 import com.example.mad_project.adapter.ClassAdapter;
 import com.example.mad_project.model.ClassItem;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,9 +31,11 @@ public class DashboardFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_dashboard, container, false);
 
+        // Initialize RecyclerView
         RecyclerView recyclerView = view.findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
+        // Initialize class list and adapter
         List<ClassItem> classList = new ArrayList<>();
         classList.add(new ClassItem("1", "Mathematics", "Weekly problem-solving class", R.drawable.ic_class, "Mr. Khan"));
         classList.add(new ClassItem("2", "Biology", "Plant cell discussion", R.drawable.ic_class, "Dr. Ahmed"));
@@ -40,18 +47,21 @@ public class DashboardFragment extends Fragment {
         ClassAdapter adapter = new ClassAdapter(getContext(), classList);
         recyclerView.setAdapter(adapter);
 
-        // Initialize Floating Action Button and set its click listener
-        View fab = view.findViewById(R.id.fab_add_class);
+        // Initialize FloatingActionButton
+        FloatingActionButton fab = view.findViewById(R.id.fab_add_class);
         fab.setOnClickListener(v -> {
-            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-            builder.setTitle("Choose an option")
-                    .setItems(new CharSequence[]{"Create Class", "Join Class"}, (dialog, which) -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(requireContext());
+            builder.setTitle("Select Action")
+                    .setItems(new CharSequence[]{"Join Class", "Create Class"}, (dialog, which) -> {
                         if (which == 0) {
-                            // Handle create class
-                        } else {
-                            // Handle join class
+                            Toast.makeText(requireContext(), "Join Class clicked", Toast.LENGTH_SHORT).show();
+                            // TODO: Add JoinClassActivity intent here later
+                        } else if (which == 1) {
+                            Intent intent = new Intent(getActivity(), CreateClassActivity.class);
+                            startActivity(intent);
                         }
-                    }).show();
+                    })
+                    .show();
         });
 
         return view;
