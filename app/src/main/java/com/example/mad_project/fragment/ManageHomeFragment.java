@@ -19,6 +19,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.mad_project.AddAssignmentActivity;
 import com.example.mad_project.R;
 import com.example.mad_project.adapter.AssignmentAdapter;
 import com.example.mad_project.model.AssignmentItem;
@@ -85,7 +86,9 @@ public class ManageHomeFragment extends Fragment {
 
         // Add assignment button click listener
         addAssignmentButton.setOnClickListener(v -> {
-            Toast.makeText(getContext(), "Add Assignment clicked", Toast.LENGTH_SHORT).show();
+            // Handle add assignment action
+            Intent intent = new Intent(getContext(), AddAssignmentActivity.class);
+            startActivity(intent);
         });
 
         return view;
