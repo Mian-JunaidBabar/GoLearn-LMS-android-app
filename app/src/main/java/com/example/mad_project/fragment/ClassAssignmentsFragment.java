@@ -37,13 +37,13 @@ public class ClassAssignmentsFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
         assignmentList = new ArrayList<>();
-        assignmentList.add(new AssignmentItem("Math Homework", "2025-05-03", false, "10"));
-        assignmentList.add(new AssignmentItem("Science Report", "2025-05-04", true, "20"));
-        assignmentList.add(new AssignmentItem("History Essay", "2025-05-05", false, "15"));
-        assignmentList.add(new AssignmentItem("Art Project", "2025-05-06", true, "25"));
-        assignmentList.add(new AssignmentItem("Computer Science Project", "2025-05-07", false, "30"));
-        assignmentList.add(new AssignmentItem("Math Homework", "2025-05-03", false, "10"));
-        assignmentList.add(new AssignmentItem("Science Report", "2025-05-04", true, "20"));
+        assignmentList.add(new AssignmentItem("Math Homework", "2025-05-03", "Complete exercises 1-10 from Chapter 5", 'A', 100, false, "10"));
+        assignmentList.add(new AssignmentItem("Science Report", "2025-05-04", "Write a report on renewable energy sources", 'B', 100, true, "20"));
+        assignmentList.add(new AssignmentItem("History Essay", "2025-05-05", "Discuss the causes of World War II", 'C', 100, false, "15"));
+        assignmentList.add(new AssignmentItem("Art Project", "2025-05-06", "Create a painting inspired by nature", 'A', 100, true, "25"));
+        assignmentList.add(new AssignmentItem("Computer Science Project", "2025-05-07", "Develop a simple calculator app", 'B', 100, false, "30"));
+        assignmentList.add(new AssignmentItem("Math Homework", "2025-05-03", "Complete exercises 11-20 from Chapter 5", 'C', 100, false, "10"));
+        assignmentList.add(new AssignmentItem("Science Report", "2025-05-04", "Prepare a presentation on climate change", 'A', 100, true, "20"));
 
         adapter = new AssignmentAdapter(assignmentList);
         recyclerView.setAdapter(adapter);

@@ -1,5 +1,6 @@
 package com.example.mad_project.adapter;
 
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,8 +9,10 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.mad_project.AssignmentDetailActivity;
 import com.example.mad_project.R;
 import com.example.mad_project.model.*;
+
 import java.util.List;
 
 public class AssignmentAdapter extends RecyclerView.Adapter<AssignmentAdapter.AssignmentViewHolder> {
@@ -34,6 +37,19 @@ public class AssignmentAdapter extends RecyclerView.Adapter<AssignmentAdapter.As
         holder.dueDate.setText("Due: " + assignment.getDueDate());
         holder.status.setText(assignment.isSubmitted() ? "Submitted" : "Pending");
         holder.points.setText("Points: " + assignment.getPoints());
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(v.getContext(), AssignmentDetailActivity.class);
+                intent.putExtra("title", assignment.getTitle());
+                intent.putExtra("description", assignment.getDescription());
+                intent.putExtra("isSubmitted", assignment.isSubmitted());
+                intent.putExtra("grade", assignment.getGrade());
+                intent.putExtra("points", assignment.getPoints());
+                v.getContext().startActivity(intent);
+            }
+        });
     }
 
     @Override
