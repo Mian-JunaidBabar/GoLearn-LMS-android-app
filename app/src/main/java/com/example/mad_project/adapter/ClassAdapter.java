@@ -41,11 +41,14 @@ public class ClassAdapter extends RecyclerView.Adapter<ClassAdapter.ClassViewHol
     @Override
     public void onBindViewHolder(@NonNull ClassViewHolder holder, int position) {
         ClassItem item = classList.get(position);
+
+        // Bind data to views
         holder.title.setText(item.getTitle());
         holder.description.setText(item.getDescription());
         holder.teacher.setText("By " + item.getTeacherName());
         holder.assignments.setText(String.valueOf(item.getStatus()));
         holder.image.setImageResource(item.getIconResId());
+        holder.classCode.setText("Code: " + item.getCode());
 
         // Handle assignment status and obtained points
         if (item.isStudentAssignment()) {
@@ -59,6 +62,7 @@ public class ClassAdapter extends RecyclerView.Adapter<ClassAdapter.ClassViewHol
             holder.obtainedPoints.setVisibility(View.GONE);
         }
 
+        // Set click listener
         holder.itemView.setOnClickListener(v -> listener.onItemClick(item));
     }
 
@@ -68,11 +72,13 @@ public class ClassAdapter extends RecyclerView.Adapter<ClassAdapter.ClassViewHol
     }
 
     public static class ClassViewHolder extends RecyclerView.ViewHolder {
-        TextView title, description, teacher, assignments, submissionStatus, obtainedPoints;
+        TextView title, description, teacher, assignments, submissionStatus, obtainedPoints, classCode;
         ImageView image;
 
         public ClassViewHolder(@NonNull View itemView) {
             super(itemView);
+
+            // Initialize views
             title = itemView.findViewById(R.id.class_title);
             description = itemView.findViewById(R.id.class_description);
             teacher = itemView.findViewById(R.id.class_teacher);
@@ -80,6 +86,7 @@ public class ClassAdapter extends RecyclerView.Adapter<ClassAdapter.ClassViewHol
             image = itemView.findViewById(R.id.class_image);
             submissionStatus = itemView.findViewById(R.id.assignment_status);
             obtainedPoints = itemView.findViewById(R.id.assignment_obtained_points);
+            classCode = itemView.findViewById(R.id.class_code_label);
         }
     }
 }

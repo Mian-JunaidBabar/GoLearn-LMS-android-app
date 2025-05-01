@@ -51,7 +51,14 @@
                 android:textColor="@color/black"
                 android:textSize="14sp" />
 
-            <!-- New TextView for assignment status -->
+            <TextView
+                android:id="@+id/class_code_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Code: ABC123"
+                android:textColor="@color/black"
+                android:textSize="14sp" />
+
             <TextView
                 android:id="@+id/assignment_status"
                 android:layout_width="wrap_content"
@@ -60,7 +67,6 @@
                 android:textSize="14sp"
                 android:visibility="gone" />
 
-            <!-- New TextView for obtained points -->
             <TextView
                 android:id="@+id/assignment_obtained_points"
                 android:layout_width="wrap_content"
