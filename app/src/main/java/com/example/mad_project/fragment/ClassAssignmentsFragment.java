@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -15,8 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.mad_project.AssignmentDetailActivity;
 import com.example.mad_project.R;
-import com.example.mad_project.adapter.AssignmentAdapter;
-import com.example.mad_project.model.AssignmentItem;
+import com.example.mad_project.adapter.StudentAssignmentAdapter;
 import com.example.mad_project.model.StudentAssignmentItem;
 
 import java.util.ArrayList;
@@ -25,8 +23,8 @@ import java.util.List;
 public class ClassAssignmentsFragment extends Fragment {
 
     private RecyclerView recyclerView;
-    private AssignmentAdapter adapter;
-    private List<AssignmentItem> assignmentList;
+    private StudentAssignmentAdapter adapter;
+    private List<StudentAssignmentItem> assignmentList;
 
     public ClassAssignmentsFragment() {
         // Required empty public constructor
@@ -47,24 +45,9 @@ public class ClassAssignmentsFragment extends Fragment {
         assignmentList.add(new StudentAssignmentItem("Art Project", "2025-05-06", "Create a painting inspired by nature", "25 points", false, 0));
         assignmentList.add(new StudentAssignmentItem("Computer Science Project", "2025-05-07", "Develop a simple calculator app", "30 points", true, 28));
 
-        // Pass the isTeacherSide flag as true or false
-        adapter = new AssignmentAdapter(getContext(), assignmentList, item -> {
-            if (item instanceof StudentAssignmentItem) {
-                StudentAssignmentItem studentItem = (StudentAssignmentItem) item;
-                Intent intent = new Intent(getContext(), AssignmentDetailActivity.class);
-                intent.putExtra("title", studentItem.getTitle());
-                intent.putExtra("dueDate", studentItem.getDueDate());
-                intent.putExtra("description", studentItem.getDescription());
-                intent.putExtra("points", studentItem.getPoints());
-                intent.putExtra("isSubmitted", studentItem.isSubmitted());
-                intent.putExtra("obtainedPoints", studentItem.getObtainedPoints());
-                startActivity(intent);
-            } else {
-                Toast.makeText(getContext(), "Invalid assignment type", Toast.LENGTH_SHORT).show();
-            }
-        }, false); // Set to false for student side
-
+        adapter = new StudentAssignmentAdapter(getContext(), assignmentList);
         recyclerView.setAdapter(adapter);
+
         return view;
     }
 }
