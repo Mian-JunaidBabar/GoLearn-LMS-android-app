@@ -1,6 +1,7 @@
 package com.example.mad_project.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.mad_project.R;
 import com.example.mad_project.model.AssignmentItem;
+import com.example.mad_project.AssignmentDetailActivity;
 
 import java.util.List;
 
@@ -23,11 +25,13 @@ public class AssignmentAdapter extends RecyclerView.Adapter<AssignmentAdapter.As
     private Context context;
     private List<AssignmentItem> assignmentList;
     private OnItemClickListener listener;
+    private boolean isTeacherSide; // Flag to determine if it's the teacher's side
 
-    public AssignmentAdapter(Context context, List<AssignmentItem> assignmentList, OnItemClickListener listener) {
+    public AssignmentAdapter(Context context, List<AssignmentItem> assignmentList, OnItemClickListener listener, boolean isTeacherSide) {
         this.context = context;
         this.assignmentList = assignmentList;
         this.listener = listener;
+        this.isTeacherSide = isTeacherSide;
     }
 
     @NonNull
@@ -50,7 +54,26 @@ public class AssignmentAdapter extends RecyclerView.Adapter<AssignmentAdapter.As
             holder.obtainedPoints.setText("Obtained Points: " + studentItem.getObtainedPoints());
         }
 
-        holder.itemView.setOnClickListener(v -> listener.onItemClick(item));
+        // Set click listener based on the side
+        holder.itemView.setOnClickListener(v -> {
+            if (isTeacherSide) {
+                // Navigate to AssignmentSubmissionsActivity for teacher side
+                Intent intent = new Intent(context, com.example.mad_project.AssignmentSubmissionsActivity.class);
+                intent.putExtra("title", item.getTitle());
+                intent.putExtra("dueDate", item.getDueDate());
+                intent.putExtra("description", item.getDescription());
+                intent.putExtra("points", item.getPoints());
+                context.startActivity(intent);
+            } else {
+                // Navigate to AssignmentDetailActivity for student side
+                Intent intent = new Intent(context, com.example.mad_project.AssignmentDetailActivity.class);
+                intent.putExtra("title", item.getTitle());
+                intent.putExtra("dueDate", item.getDueDate());
+                intent.putExtra("description", item.getDescription());
+                intent.putExtra("points", item.getPoints());
+                context.startActivity(intent);
+            }
+        });
     }
 
     @Override

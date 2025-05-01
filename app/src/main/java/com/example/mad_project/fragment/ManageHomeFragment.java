@@ -79,9 +79,10 @@ public class ManageHomeFragment extends Fragment {
         assignmentList.add(new AssignmentItem("Assignment 2", "2023-10-15", "Upload model architecture", "20 points"));
 
         // Set up RecyclerView
+        // Set up RecyclerView
         assignmentAdapter = new AssignmentAdapter(getContext(), assignmentList, item -> {
             Toast.makeText(getContext(), "Clicked: " + item.getTitle(), Toast.LENGTH_SHORT).show();
-        });
+        }, true); // Pass 'true' for isTeacherSide since this is the teacher's side
         assignmentsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         assignmentsRecyclerView.setAdapter(assignmentAdapter);
 

@@ -47,6 +47,7 @@ public class ClassAssignmentsFragment extends Fragment {
         assignmentList.add(new StudentAssignmentItem("Art Project", "2025-05-06", "Create a painting inspired by nature", "25 points", false, 0));
         assignmentList.add(new StudentAssignmentItem("Computer Science Project", "2025-05-07", "Develop a simple calculator app", "30 points", true, 28));
 
+        // Pass the isTeacherSide flag as true or false
         adapter = new AssignmentAdapter(getContext(), assignmentList, item -> {
             if (item instanceof StudentAssignmentItem) {
                 StudentAssignmentItem studentItem = (StudentAssignmentItem) item;
@@ -61,7 +62,7 @@ public class ClassAssignmentsFragment extends Fragment {
             } else {
                 Toast.makeText(getContext(), "Invalid assignment type", Toast.LENGTH_SHORT).show();
             }
-        });
+        }, false); // Set to false for student side
 
         recyclerView.setAdapter(adapter);
         return view;

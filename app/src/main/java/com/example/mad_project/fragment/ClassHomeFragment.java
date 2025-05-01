@@ -17,7 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.mad_project.AssignmentDetailActivity;
 import com.example.mad_project.R;
-import com.example.mad_project.adapter.*;
+import com.example.mad_project.adapter.AssignmentAdapter;
 import com.example.mad_project.model.AssignmentItem;
 
 import java.util.ArrayList;
@@ -89,6 +89,7 @@ public class ClassHomeFragment extends Fragment {
         assignmentList.add(new AssignmentItem("Math Homework", "2025-05-03", "Complete exercises 11-20 from Chapter 5", "10 points"));
         assignmentList.add(new AssignmentItem("Science Report", "2025-05-04", "Prepare a presentation on climate change", "20 points"));
 
+        // Pass the isTeacherSide flag as true
         AssignmentAdapter adapter = new AssignmentAdapter(getContext(), assignmentList, item -> {
             // Start a new activity and pass assignment details
             Intent intent = new Intent(getContext(), AssignmentDetailActivity.class);
@@ -97,7 +98,8 @@ public class ClassHomeFragment extends Fragment {
             intent.putExtra("description", item.getDescription());
             intent.putExtra("points", item.getPoints());
             startActivity(intent);
-        });
+        }, false); // Set to false for the student's side
+
         rvAssignments.setLayoutManager(new LinearLayoutManager(getContext()));
         rvAssignments.setAdapter(adapter);
     }
