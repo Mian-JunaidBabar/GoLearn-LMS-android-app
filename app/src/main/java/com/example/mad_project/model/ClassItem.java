@@ -1,19 +1,87 @@
 package com.example.mad_project.model;
 
 public class ClassItem {
+
     private String id;
     private String title;
-    private String teacherName;
     private String description;
+    private String teacherName;
+    private int status;
     private int iconResId;
-    private String status;
 
-    public ClassItem(String id, String title, String description, int iconResId, String status) {
+    // Fields for student-specific assignments
+    private boolean isStudentAssignment;
+    private boolean isSubmitted;
+    private int obtainedPoints;
+
+    // Full constructor
+    public ClassItem(String title, String description, String teacherName, int status, int iconResId, boolean isStudentAssignment, boolean isSubmitted, int obtainedPoints) {
+        this.title = title;
+        this.description = description;
+        this.teacherName = teacherName;
+        this.status = status;
+        this.iconResId = iconResId;
+        this.isStudentAssignment = isStudentAssignment;
+        this.isSubmitted = isSubmitted;
+        this.obtainedPoints = obtainedPoints;
+    }
+
+    // Overloaded constructor for simpler use cases
+    public ClassItem(String id, String title, String description, int iconResId, String teacherName) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.iconResId = iconResId;
-        this.status = status;
+        this.teacherName = teacherName;
+        this.status = 0;                 // Default value
+        this.isStudentAssignment = false; // Default value
+        this.isSubmitted = false;        // Default value
+        this.obtainedPoints = 0;         // Default value
+    }
+
+    // Getters and Setters
+    public String getTitle() {
+        return title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getTeacherName() {
+        return teacherName;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public int getIconResId() {
+        return iconResId;
+    }
+
+    public boolean isStudentAssignment() {
+        return isStudentAssignment;
+    }
+
+    public void setStudentAssignment(boolean studentAssignment) {
+        isStudentAssignment = studentAssignment;
+    }
+
+    public boolean isSubmitted() {
+        return isSubmitted;
+    }
+
+    public void setSubmitted(boolean submitted) {
+        isSubmitted = submitted;
+    }
+
+    public int getObtainedPoints() {
+        return obtainedPoints;
+    }
+
+    public void setObtainedPoints(int obtainedPoints) {
+        this.obtainedPoints = obtainedPoints;
     }
 
     public String getId() {
@@ -24,43 +92,23 @@ public class ClassItem {
         this.id = id;
     }
 
-    public String getTitle() {
-        return title;
-    }
-
     public void setTitle(String title) {
         this.title = title;
-    }
-
-    public String getTeacherName() {
-        return teacherName;
-    }
-
-    public void setTeacherName(String teacherName) {
-        this.teacherName = teacherName;
-    }
-
-    public String getDescription() {
-        return description;
     }
 
     public void setDescription(String description) {
         this.description = description;
     }
 
-    public int getIconResId() {
-        return iconResId;
+    public void setTeacherName(String teacherName) {
+        this.teacherName = teacherName;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
     }
 
     public void setIconResId(int iconResId) {
         this.iconResId = iconResId;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
     }
 }

@@ -47,7 +47,18 @@ public class ClassAdapter extends RecyclerView.Adapter<ClassAdapter.ClassViewHol
         holder.assignments.setText(String.valueOf(item.getStatus()));
         holder.image.setImageResource(item.getIconResId());
 
-        // Handle item click using the listener
+        // Handle assignment status and obtained points
+        if (item.isStudentAssignment()) {
+            holder.submissionStatus.setVisibility(View.VISIBLE);
+            holder.submissionStatus.setText(item.isSubmitted() ? "Submitted" : "Not Submitted");
+
+            holder.obtainedPoints.setVisibility(View.VISIBLE);
+            holder.obtainedPoints.setText("Points: " + item.getObtainedPoints());
+        } else {
+            holder.submissionStatus.setVisibility(View.GONE);
+            holder.obtainedPoints.setVisibility(View.GONE);
+        }
+
         holder.itemView.setOnClickListener(v -> listener.onItemClick(item));
     }
 
@@ -57,7 +68,7 @@ public class ClassAdapter extends RecyclerView.Adapter<ClassAdapter.ClassViewHol
     }
 
     public static class ClassViewHolder extends RecyclerView.ViewHolder {
-        TextView title, description, teacher, assignments;
+        TextView title, description, teacher, assignments, submissionStatus, obtainedPoints;
         ImageView image;
 
         public ClassViewHolder(@NonNull View itemView) {
@@ -67,6 +78,8 @@ public class ClassAdapter extends RecyclerView.Adapter<ClassAdapter.ClassViewHol
             teacher = itemView.findViewById(R.id.class_teacher);
             assignments = itemView.findViewById(R.id.class_assignments);
             image = itemView.findViewById(R.id.class_image);
+            submissionStatus = itemView.findViewById(R.id.assignment_status);
+            obtainedPoints = itemView.findViewById(R.id.assignment_obtained_points);
         }
     }
 }

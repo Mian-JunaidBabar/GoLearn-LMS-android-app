@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -52,6 +51,23 @@
                 android:textColor="@color/black"
                 android:textSize="14sp" />
 
+            <!-- New TextView for assignment status -->
+            <TextView
+                android:id="@+id/assignment_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Not Submitted"
+                android:textSize="14sp"
+                android:visibility="gone" />
+
+            <!-- New TextView for obtained points -->
+            <TextView
+                android:id="@+id/assignment_obtained_points"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Points: 0"
+                android:textSize="14sp"
+                android:visibility="gone" />
         </LinearLayout>
 
         <TextView

@@ -5,7 +5,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -17,49 +16,41 @@ import java.util.List;
 
 public class AssignmentAdapter extends RecyclerView.Adapter<AssignmentAdapter.AssignmentViewHolder> {
 
-    private Context context;
-    private List<AssignmentItem> assignmentList;
-    private OnItemClickListener onItemClickListener;
-
     public interface OnItemClickListener {
         void onItemClick(AssignmentItem item);
     }
 
-    public AssignmentAdapter(Context context, List<AssignmentItem> assignmentList, OnItemClickListener onItemClickListener) {
+    private Context context;
+    private List<AssignmentItem> assignmentList;
+    private OnItemClickListener listener;
+
+    public AssignmentAdapter(Context context, List<AssignmentItem> assignmentList, OnItemClickListener listener) {
         this.context = context;
         this.assignmentList = assignmentList;
-        this.onItemClickListener = onItemClickListener;
+        this.listener = listener;
     }
 
     @NonNull
     @Override
     public AssignmentViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_assignment, parent, false);
+        View view = LayoutInflater.from(context).inflate(R.layout.item_assignment_student, parent, false);
         return new AssignmentViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull AssignmentViewHolder holder, int position) {
-        AssignmentItem assignment = assignmentList.get(position);
+        AssignmentItem item = assignmentList.get(position);
+        holder.title.setText(item.getTitle());
+        holder.dueDate.setText("Due: " + item.getDueDate());
+        holder.points.setText("Points: " + item.getPoints());
 
-        // Ensure all TextViews are properly set
-        if (holder.title != null) {
-            holder.title.setText(assignment.getTitle());
-        }
-        if (holder.dueDate != null) {
-            holder.dueDate.setText("Due: " + assignment.getDueDate());
-        }
-        if (holder.points != null) {
-            holder.points.setText("Points: " + assignment.getPoints());
-        }
-        if (holder.description != null) {
-            holder.description.setText(assignment.getDescription());
+        if (item instanceof com.example.mad_project.model.StudentAssignmentItem) {
+            com.example.mad_project.model.StudentAssignmentItem studentItem = (com.example.mad_project.model.StudentAssignmentItem) item;
+            holder.status.setText(studentItem.isSubmitted() ? "Submitted" : "Not Submitted");
+            holder.obtainedPoints.setText("Obtained Points: " + studentItem.getObtainedPoints());
         }
 
-        holder.itemView.setOnClickListener(v -> {
-            onItemClickListener.onItemClick(assignment);
-            Toast.makeText(context, "Clicked: " + assignment.getTitle(), Toast.LENGTH_SHORT).show();
-        });
+        holder.itemView.setOnClickListener(v -> listener.onItemClick(item));
     }
 
     @Override
@@ -68,14 +59,15 @@ public class AssignmentAdapter extends RecyclerView.Adapter<AssignmentAdapter.As
     }
 
     public static class AssignmentViewHolder extends RecyclerView.ViewHolder {
-        TextView title, dueDate, points, description;
+        TextView title, dueDate, points, status, obtainedPoints;
 
         public AssignmentViewHolder(@NonNull View itemView) {
             super(itemView);
             title = itemView.findViewById(R.id.assignment_title);
             dueDate = itemView.findViewById(R.id.assignment_due);
             points = itemView.findViewById(R.id.assignment_points);
-            description = itemView.findViewById(R.id.assignment_description);
+            status = itemView.findViewById(R.id.assignment_status);
+            obtainedPoints = itemView.findViewById(R.id.assignment_obtained_points);
         }
     }
 }
