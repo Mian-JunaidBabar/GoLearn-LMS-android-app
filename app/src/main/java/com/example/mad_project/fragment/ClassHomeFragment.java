@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -47,13 +48,38 @@ public class ClassHomeFragment extends Fragment {
         totalMembers = view.findViewById(R.id.total_members);
         rvAssignments = view.findViewById(R.id.rv_assignments);
 
+        // New buttons for copy and share
+        ImageButton btnCopyCode = view.findViewById(R.id.btn_copy_code);
+        ImageButton btnShareCode = view.findViewById(R.id.btn_share_code);
+        TextView classCodeLabel = view.findViewById(R.id.class_code_label);
+
         // Static details
         classDesc.setText("Course: Introduction to AI and ML");
         teacherName.setText("Teacher: Sir Adeel Mughal");
         totalMembers.setText("Total Members: 30");
+        classCodeLabel.setText("Code: ABC123");
 
         submittedSummary.setText("Submitted Assignments: 3");
 
+        // Copy class code to clipboard
+        btnCopyCode.setOnClickListener(v -> {
+            String classCode = classCodeLabel.getText().toString().replace("Code: ", "");
+            android.content.ClipboardManager clipboard = (android.content.ClipboardManager) requireContext().getSystemService(android.content.Context.CLIPBOARD_SERVICE);
+            android.content.ClipData clip = android.content.ClipData.newPlainText("Class Code", classCode);
+            clipboard.setPrimaryClip(clip);
+            Toast.makeText(getContext(), "Class code copied to clipboard", Toast.LENGTH_SHORT).show();
+        });
+
+        // Share class code
+        btnShareCode.setOnClickListener(v -> {
+            String classCode = classCodeLabel.getText().toString().replace("Code: ", "");
+            Intent shareIntent = new Intent(Intent.ACTION_SEND);
+            shareIntent.setType("text/plain");
+            shareIntent.putExtra(Intent.EXTRA_TEXT, "Join my class using this code: " + classCode);
+            startActivity(Intent.createChooser(shareIntent, "Share Class Code"));
+        });
+
+        // Initialize assignment list
         assignmentList = new ArrayList<>();
         assignmentList.add(new AssignmentItem("Math Homework", "2025-05-03", "Complete exercises 1-10 from Chapter 5", "10 points"));
         assignmentList.add(new AssignmentItem("Science Report", "2025-05-04", "Write a report on renewable energy sources", "20 points"));
