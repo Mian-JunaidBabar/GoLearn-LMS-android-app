@@ -17,6 +17,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 
 import com.example.mad_project.fragment.*;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.auth.FirebaseAuth;
 
 public class DashboardActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -59,6 +60,13 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
             startActivity(new Intent(this, TeacherClassesActivity.class));
         } else if (item.getItemId() == R.id.nav_profile) {
             startActivity(new Intent(this, ProfileActivity.class));
+        } else if (item.getItemId() == R.id.nav_logout) {
+            // Handle logout
+            FirebaseAuth.getInstance().signOut(); // Sign out the user
+            Intent intent = new Intent(this, LoginActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK); // Clear activity stack
+            startActivity(intent);
+            finish(); // Close the current activity
         }
 
         drawerLayout.closeDrawer(GravityCompat.START);

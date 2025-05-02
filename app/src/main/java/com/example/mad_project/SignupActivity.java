@@ -2,14 +2,17 @@ package com.example.mad_project;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Patterns;
+import android.view.MotionEvent;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.common.SignInButton;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
@@ -21,30 +24,42 @@ import java.util.Map;
 
 public class SignupActivity extends AppCompatActivity {
 
-    private EditText etName, etSignupEmail, etSignupPassword, etSignupCPassword;
+    private TextInputEditText etName, etSignupEmail, etSignupPassword, etSignupCPassword;
+    private TextInputLayout tilSignupPassword, tilSignupCPassword;
     private Button btnSignup, btnGoToLogin;
     private SignInButton btnGoogleSignIn;
     private FirebaseAuth mAuth;
     private FirebaseDatabase mDatabase;
+
+    private static final String DEFAULT_PROFILE_IMAGE_URL = "gs://golearn-1b2e5.firebasestorage.app/GoLearn/images/default user image.jpg";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup);
 
+        // Initialize views
         etName = findViewById(R.id.etName);
         etSignupEmail = findViewById(R.id.etSignupEmail);
         etSignupPassword = findViewById(R.id.etSignupPassword);
         etSignupCPassword = findViewById(R.id.etSignupCPassword);
+        tilSignupPassword = findViewById(R.id.tilSignupPassword);
+        tilSignupCPassword = findViewById(R.id.tilSignupCPassword);
         btnSignup = findViewById(R.id.btnSignup);
         btnGoToLogin = findViewById(R.id.btnGoToLogin);
         btnGoogleSignIn = findViewById(R.id.btnGoogleSignIn);
 
+        // Initialize Firebase
         mAuth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance();
 
+        // Set button listeners
         btnSignup.setOnClickListener(v -> handleSignup());
         btnGoToLogin.setOnClickListener(v -> startActivity(new Intent(this, LoginActivity.class)));
+
+        // Add password visibility toggle
+        setupPasswordVisibilityToggle(etSignupPassword);
+        setupPasswordVisibilityToggle(etSignupCPassword);
     }
 
     private void handleSignup() {
@@ -53,6 +68,7 @@ public class SignupActivity extends AppCompatActivity {
         String password = etSignupPassword.getText().toString().trim();
         String confirmPassword = etSignupCPassword.getText().toString().trim();
 
+        // Validate inputs
         if (name.isEmpty()) {
             etName.setError("Name is required");
             return;
@@ -64,16 +80,20 @@ public class SignupActivity extends AppCompatActivity {
         }
 
         if (!isValidPassword(password)) {
-            etSignupPassword.setError("Password must be 6–8 chars, include letters and numbers");
+            tilSignupPassword.setError("Password must be 6–8 chars, include letters and numbers");
             return;
+        } else {
+            tilSignupPassword.setError(null); // Clear error
         }
 
         if (!password.equals(confirmPassword)) {
-            etSignupCPassword.setError("Passwords do not match");
+            tilSignupCPassword.setError("Passwords do not match");
             return;
+        } else {
+            tilSignupCPassword.setError(null); // Clear error
         }
 
-        // Firebase create user
+        // Create user in Firebase
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
@@ -96,8 +116,8 @@ public class SignupActivity extends AppCompatActivity {
         userData.put("uid", uid);
         userData.put("name", name);
         userData.put("email", email);
-        userData.put("profileUrl", ""); // Placeholder
-        userData.put("enrolledClasses", new ArrayList<>());
+        userData.put("profileUrl", DEFAULT_PROFILE_IMAGE_URL); // Default image
+        userData.put("enrolledClasses", new ArrayList<>()); // Empty list for enrolled classes
 
         userRef.setValue(userData);
     }
@@ -107,5 +127,22 @@ public class SignupActivity extends AppCompatActivity {
         boolean hasDigit = password.matches(".*\\d.*");
         boolean hasAlpha = password.matches(".*[a-zA-Z].*");
         return hasDigit && hasAlpha;
+    }
+
+    private void setupPasswordVisibilityToggle(TextInputEditText passwordField) {
+        passwordField.setOnTouchListener((v, event) -> {
+            if (event.getAction() == MotionEvent.ACTION_UP) {
+                if (event.getRawX() >= (passwordField.getRight() - passwordField.getCompoundDrawables()[2].getBounds().width())) {
+                    if (passwordField.getInputType() == InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD) {
+                        passwordField.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+                    } else {
+                        passwordField.setInputType(InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
+                    }
+                    passwordField.setSelection(passwordField.getText().length()); // Move cursor to the end
+                    return true;
+                }
+            }
+            return false;
+        });
     }
 }

@@ -19,75 +19,93 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.List;
+
 public class ProfileActivity extends AppCompatActivity {
 
-    private TextView tvName, tvEmail;
-    private ImageView profileImage;
+    private TextView tvName, tvEmail, tvRole, tvEnrolledClasses;
+    private ImageView imgProfile;
     private Button btnLogout;
 
     private FirebaseAuth mAuth;
-    private DatabaseReference usersRef;
     private FirebaseUser currentUser;
+    private DatabaseReference usersRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
 
-        // Initialize views
+        // Bind Views
         tvName = findViewById(R.id.tvName);
-        tvEmail = findViewById(R.id.tvEmail);
-        profileImage = findViewById(R.id.profileImage);
+        tvEmail = findViewById(R.id.tvProfileEmail);
+        tvRole = findViewById(R.id.tvRole);
+        tvEnrolledClasses = findViewById(R.id.tvEnrolledClasses);
+        imgProfile = findViewById(R.id.imgProfile);
         btnLogout = findViewById(R.id.btnLogout);
 
-        // Initialize Firebase Auth
+        // Firebase Init
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
 
-        // Check if user is logged in
         if (currentUser == null) {
-            redirectToLogin();
+            Toast.makeText(this, "User not logged in", Toast.LENGTH_SHORT).show();
+            finish();
             return;
         }
 
-        // Set user email
-        tvEmail.setText(currentUser.getEmail());
-
-        // Fetch user data from Firebase Realtime Database
         usersRef = FirebaseDatabase.getInstance().getReference("users").child(currentUser.getUid());
+
+        // Fetch user data
         usersRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                String name = snapshot.child("name").getValue(String.class);
-                String profileUrl = snapshot.child("profileUrl").getValue(String.class);
+                if (snapshot.exists()) {
+                    String name = snapshot.child("name").getValue(String.class);
+                    String email = snapshot.child("email").getValue(String.class);
+                    String role = snapshot.child("role").getValue(String.class);
+                    String profileUrl = snapshot.child("profileUrl").getValue(String.class);
 
-                // Set user name
-                tvName.setText(name != null ? name : "No Name");
+                    // Enrolled classes list
+                    List<String> enrolledClassesList = (List<String>) snapshot.child("enrolledClasses").getValue();
+                    int enrolledCount = 0;
+                    if (enrolledClassesList != null) {
+                        enrolledCount = enrolledClassesList.size();
+                    }
 
-                // Load profile image using Glide
-                if (profileUrl != null && !profileUrl.isEmpty()) {
-                    Glide.with(ProfileActivity.this).load(profileUrl).into(profileImage);
+                    tvName.setText("Name: " + (name != null ? name : "N/A"));
+                    tvEmail.setText("Email: " + (email != null ? email : "N/A"));
+                    tvRole.setText("Role: " + (role != null ? role : "N/A"));
+                    tvEnrolledClasses.setText("Enrolled Classes: " + enrolledCount);
+
+                    // Load profile image
+                    String defaultUrl = "gs://golearn-1b2e5.firebasestorage.app/GoLearn/images/default user image.jpg";
+                    Glide.with(ProfileActivity.this)
+                            .load(profileUrl != null ? profileUrl : defaultUrl)
+                            .into(imgProfile);
+
+                    // Set click listener to open fullscreen image
+                    imgProfile.setOnClickListener(v -> {
+                        Intent intent = new Intent(ProfileActivity.this, FullscreenImageActivity.class);
+                        intent.putExtra("image_uri", profileUrl != null ? profileUrl : defaultUrl);
+                        startActivity(intent);
+                    });
+
                 } else {
-                    profileImage.setImageResource(R.drawable.ic_android_black); // Default image
+                    Toast.makeText(ProfileActivity.this, "User data not found", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(ProfileActivity.this, "Failed to load profile.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(ProfileActivity.this, "Failed to load data: " + error.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
 
-        // Logout button click listener
         btnLogout.setOnClickListener(v -> {
-            mAuth.signOut(); // Sign out the user
-            redirectToLogin(); // Redirect to login page
+            mAuth.signOut();
+            startActivity(new Intent(ProfileActivity.this, LoginActivity.class));
+            finish();
         });
-    }
-
-    // Redirect to LoginActivity
-    private void redirectToLogin() {
-        startActivity(new Intent(ProfileActivity.this, LoginActivity.class));
-        finish(); // Close the current activity
     }
 }

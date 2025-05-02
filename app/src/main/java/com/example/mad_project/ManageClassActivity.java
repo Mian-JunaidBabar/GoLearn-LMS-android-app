@@ -17,6 +17,7 @@ import com.example.mad_project.fragment.ManageHomeFragment;
 import com.example.mad_project.fragment.ManagePeopleFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.auth.FirebaseAuth;
 
 public class ManageClassActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -94,6 +95,16 @@ public class ManageClassActivity extends AppCompatActivity implements Navigation
         } else if (item.getItemId() == R.id.nav_teacher_classes) {
             // Navigate to ManageClassActivity
             startActivity(new Intent(this, ManageClassActivity.class));
+        } else if (item.getItemId() == R.id.nav_profile) {
+            // Navigate to ManageClassActivity
+            startActivity(new Intent(this, ManageClassActivity.class));
+        } else if (item.getItemId() == R.id.nav_logout) {
+            // Handle logout
+            FirebaseAuth.getInstance().signOut(); // Sign out the user
+            Intent intent = new Intent(this, LoginActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK); // Clear activity stack
+            startActivity(intent);
+            finish(); // Close the current activity
         } else {
             Fragment selectedFragment = null;
 
