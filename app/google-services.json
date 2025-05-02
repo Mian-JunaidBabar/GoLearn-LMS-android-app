@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "234230768296",
+    "project_id": "golearn-1b2e5",
+    "storage_bucket": "golearn-1b2e5.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:234230768296:android:df78c6c6a4f4f7d865d89d",
+        "android_client_info": {
+          "package_name": "com.example.mad_project"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBbov4KsbaplRKSuBtNGjUmKU7YZrIk0WM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
