@@ -57,6 +57,8 @@ public class DashboardActivity extends AppCompatActivity implements NavigationVi
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.nav_teacher_classes) {
             startActivity(new Intent(this, TeacherClassesActivity.class));
+        } else if (item.getItemId() == R.id.nav_profile) {
+            startActivity(new Intent(this, ProfileActivity.class));
         }
 
         drawerLayout.closeDrawer(GravityCompat.START);
