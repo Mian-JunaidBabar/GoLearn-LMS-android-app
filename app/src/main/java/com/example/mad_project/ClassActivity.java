@@ -1,20 +1,28 @@
 package com.example.mad_project;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.MenuItem;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 
 import com.example.mad_project.fragment.ClassAssignmentsFragment;
-import com.example.mad_project.fragment.CommentFragment;
 import com.example.mad_project.fragment.ClassHomeFragment;
 import com.example.mad_project.fragment.ClassPeopleFragment;
 import com.example.mad_project.fragment.CommentFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.example.mad_project.util.*;
+import com.google.android.material.navigation.NavigationView;
+import com.example.mad_project.util.ClassDataHolder;
 
-public class ClassActivity extends AppCompatActivity {
+public class ClassActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+
+    private DrawerLayout drawerLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +39,16 @@ public class ClassActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setTitle(title);
+
+        // Set up DrawerLayout
+        drawerLayout = findViewById(R.id.drawer_layout);
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
+                this, drawerLayout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        drawerLayout.addDrawerListener(toggle);
+        toggle.syncState();
 
         // Store values in static/global vars for fragments
         ClassDataHolder.classId = classId;
@@ -59,5 +77,48 @@ public class ClassActivity extends AppCompatActivity {
             }
             return true;
         });
+
+        // Load default fragment
+        if (savedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, new ClassHomeFragment()).commit();
+            navigationView.setCheckedItem(R.id.nav_home);
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START);
+        } else {
+            super.onBackPressed();
+        }
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.nav_home) {
+            // Navigate to DashboardActivity
+            startActivity(new Intent(this, DashboardActivity.class));
+        } else if (item.getItemId() == R.id.nav_teacher_classes) {
+            // Navigate to ManageClassActivity
+            startActivity(new Intent(this, ManageClassActivity.class));
+        } else {
+            Fragment selectedFragment = null;
+
+            if (item.getItemId() == R.id.nav_assignments) {
+                selectedFragment = new ClassAssignmentsFragment();
+            } else if (item.getItemId() == R.id.nav_people) {
+                selectedFragment = new ClassPeopleFragment();
+            } else if (item.getItemId() == R.id.nav_comments) {
+                selectedFragment = new CommentFragment();
+            }
+
+            if (selectedFragment != null) {
+                getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, selectedFragment).commit();
+            }
+        }
+
+        drawerLayout.closeDrawer(GravityCompat.START);
+        return true;
     }
 }
