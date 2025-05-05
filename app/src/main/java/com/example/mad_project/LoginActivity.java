@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthInvalidUserException;
@@ -20,6 +21,7 @@ import com.google.firebase.auth.FirebaseUser;
 public class LoginActivity extends AppCompatActivity {
 
     private EditText etEmail, etPassword;
+    private TextInputLayout emailLayout, passwordLayout;
     private Button btnLogin, btnGoToSignup;
     private FirebaseAuth mAuth;
 
@@ -34,7 +36,6 @@ public class LoginActivity extends AppCompatActivity {
         // Check if user is already logged in
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
-            // User is already logged in, redirect to Dashboard
             startActivity(new Intent(LoginActivity.this, DashboardActivity.class));
             finish();
         }
@@ -42,6 +43,8 @@ public class LoginActivity extends AppCompatActivity {
         // Initialize views
         etEmail = findViewById(R.id.etEmail);
         etPassword = findViewById(R.id.etPassword);
+        emailLayout = findViewById(R.id.emailInputLayout);
+        passwordLayout = findViewById(R.id.passwordInputLayout);
         btnLogin = findViewById(R.id.btnLogin);
         btnGoToSignup = findViewById(R.id.btnGoToSignup);
 
@@ -53,13 +56,17 @@ public class LoginActivity extends AppCompatActivity {
             String email = etEmail.getText().toString().trim();
             String password = etPassword.getText().toString().trim();
 
+            // Clear previous errors
+            emailLayout.setError(null);
+            passwordLayout.setError(null);
+
             // Validate input
             if (TextUtils.isEmpty(email)) {
-                etEmail.setError("Email is required");
+                emailLayout.setError("Email is required");
                 return;
             }
             if (TextUtils.isEmpty(password)) {
-                etPassword.setError("Password is required");
+                passwordLayout.setError("Password is required");
                 return;
             }
 
@@ -67,28 +74,35 @@ public class LoginActivity extends AppCompatActivity {
             mAuth.signInWithEmailAndPassword(email, password)
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()) {
-                            // Login successful, redirect to DashboardActivity
                             Toast.makeText(LoginActivity.this, "Login successful", Toast.LENGTH_SHORT).show();
                             startActivity(new Intent(LoginActivity.this, DashboardActivity.class));
                             finish();
                         } else {
-                            // Login failed, show specific error message
                             try {
                                 throw task.getException();
                             } catch (FirebaseAuthInvalidUserException e) {
-                                etEmail.setError("No account found with this email");
-                                etEmail.requestFocus();
+                                // User not found = bad email
+                                emailLayout.setError("No account found with this email");
+                                emailLayout.requestFocus();
                             } catch (FirebaseAuthInvalidCredentialsException e) {
-                                etPassword.setError("Incorrect password");
-                                etPassword.requestFocus();
+                                // Password invalid, email is correct
+                                String errorMsg = e.getMessage();
+                                if (errorMsg != null && errorMsg.toLowerCase().contains("password")) {
+                                    passwordLayout.setError("Incorrect password");
+                                    passwordLayout.requestFocus();
+                                } else {
+                                    // Occasionally comes here for bad email too
+                                    emailLayout.setError("Invalid email format or no account exists");
+                                    emailLayout.requestFocus();
+                                }
                             } catch (Exception e) {
+                                // Fallback for any weird case
                                 Toast.makeText(LoginActivity.this, "Login failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                             }
                         }
                     });
         });
 
-        // Go to Signup button click listener
         btnGoToSignup.setOnClickListener(v -> {
             startActivity(new Intent(LoginActivity.this, SignupActivity.class));
         });
@@ -104,7 +118,7 @@ public class LoginActivity extends AppCompatActivity {
                     } else {
                         passwordField.setInputType(InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
                     }
-                    passwordField.setSelection(passwordField.getText().length()); // Move cursor to the end
+                    passwordField.setSelection(passwordField.getText().length());
                     return true;
                 }
             }
