@@ -47,7 +47,7 @@ public class SignupActivity extends AppCompatActivity {
     private GoogleSignInClient googleSignInClient;
 
     // Default profile image if user doesn't have one
-    private static final String DEFAULT_PROFILE_IMAGE_URL = "gs://golearn-1b2e5.appspot.com/GoLearn/images/default user image.jpg";
+    private static final String DEFAULT_PROFILE_IMAGE_URL = "https://firebasestorage.googleapis.com/v0/b/golearn-1b2e5.firebasestorage.app/o/GoLearn%2Fimages%2Fdefault%20user%20image.jpg?alt=media&token=074fc395-c57a-4b0d-8efe-ccbaa28c997a";
 
     // Request code to identify Google Sign-In intent result
     private static final int GOOGLE_SIGN_IN_REQUEST_CODE = 100;

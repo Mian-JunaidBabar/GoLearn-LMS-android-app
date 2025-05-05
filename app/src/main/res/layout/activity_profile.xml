@@ -8,13 +8,12 @@
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+        android:layout_height="wrap_content">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="?attr/actionBarSize"
             android:background="@color/primaryColor"
             android:title="Profile"
             android:titleTextColor="@android:color/white" />
@@ -28,67 +27,73 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
             android:orientation="vertical"
-            android:padding="16dp">
+            android:padding="24dp">
 
             <!-- Profile Image -->
             <ImageView
                 android:id="@+id/imgProfile"
-                android:layout_width="120dp"
-                android:layout_height="120dp"
-                android:layout_gravity="center"
+                android:layout_width="140dp"
+                android:layout_height="140dp"
                 android:layout_marginTop="16dp"
                 android:background="@drawable/profile_image_border"
+                android:contentDescription="Profile Image"
                 android:scaleType="centerCrop"
-                android:src="@drawable/ic_person_black"
-                android:contentDescription="Profile Image" />
+                android:src="@drawable/ic_person_black" />
 
-            <!-- Name -->
+            <!-- Info Section -->
             <TextView
                 android:id="@+id/tvName"
-                android:layout_width="match_parent"
+                style="@style/ProfileLabel"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:text="Name: "
-                android:textAppearance="?attr/textAppearanceBody1"
-                android:textColor="@color/black" />
+                android:text="Name: -" />
 
-            <!-- Email -->
             <TextView
                 android:id="@+id/tvProfileEmail"
-                android:layout_width="match_parent"
+                style="@style/ProfileLabel"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Email: "
-                android:textAppearance="?attr/textAppearanceBody1"
-                android:textColor="@color/black" />
+                android:text="Email: -" />
 
-            <!-- Role -->
-            <TextView
-                android:id="@+id/tvRole"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Role: "
-                android:textAppearance="?attr/textAppearanceBody1"
-                android:textColor="@color/black" />
-
-            <!-- Enrolled Classes Count -->
             <TextView
                 android:id="@+id/tvEnrolledClasses"
+                style="@style/ProfileLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Enrolled Classes: -" />
+
+            <!-- Buttons -->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Enrolled Classes: "
-                android:textAppearance="?attr/textAppearanceBody1"
-                android:textColor="@color/black" />
+                android:layout_marginTop="32dp"
+                android:gravity="center"
+                android:orientation="horizontal">
 
-            <!-- Logout Button -->
-            <Button
-                android:id="@+id/btnLogout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:text="Logout"
-                android:backgroundTint="@color/redAlert" />
+                <Button
+                    android:id="@+id/btnUpdateProfile"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:backgroundTint="@color/primaryColor"
+                    android:text="Update"
+                    android:textColor="@android:color/white" />
 
+                <Space
+                    android:layout_width="16dp"
+                    android:layout_height="wrap_content" />
+
+                <Button
+                    android:id="@+id/btnLogout"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:backgroundTint="@color/redAlert"
+                    android:text="Logout"
+                    android:textColor="@android:color/white" />
+            </LinearLayout>
         </LinearLayout>
     </ScrollView>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
