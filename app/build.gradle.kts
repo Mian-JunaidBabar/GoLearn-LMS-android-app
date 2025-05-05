@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.mad_project"
+    namespace = "com.example.GoLearn"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.mad_project"
+        applicationId = "com.example.GoLearn"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
