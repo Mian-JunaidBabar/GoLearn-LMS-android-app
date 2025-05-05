@@ -23,13 +23,15 @@
             android:layout_width="match_parent"
             android:layout_height="120dp"
             android:layout_marginBottom="32dp"
+            android:contentDescription="Logo"
             android:src="@drawable/app_name_no_bg" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/nameInputLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Full Name">
+            android:hint="Full Name"
+            app:errorIconDrawable="@null">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etName"
@@ -42,7 +44,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:hint="Email">
+            android:hint="Email"
+            app:errorIconDrawable="@null">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etSignupEmail"
@@ -56,7 +59,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:hint="Password">
+            android:hint="Password"
+            app:errorIconDrawable="@null">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etSignupPassword"
@@ -71,7 +75,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:hint="Confirm Password">
+            android:hint="Confirm Password"
+            app:errorIconDrawable="@null">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/etSignupCPassword"
