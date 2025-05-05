@@ -8,6 +8,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
@@ -50,6 +51,21 @@ public class ProfileActivity extends AppCompatActivity {
 
         usersRef = FirebaseDatabase.getInstance().getReference("users").child(currentUser.getUid());
 
+        loadUserData();
+
+        btnUpdateProfile.setOnClickListener(v -> {
+            Intent intent = new Intent(ProfileActivity.this, UpdateProfileActivity.class);
+            startActivityForResult(intent, 100); // Launch UpdateProfileActivity for result
+        });
+
+        btnLogout.setOnClickListener(v -> {
+            mAuth.signOut();
+            startActivity(new Intent(ProfileActivity.this, LoginActivity.class));
+            finish();
+        });
+    }
+
+    private void loadUserData() {
         usersRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -60,7 +76,6 @@ public class ProfileActivity extends AppCompatActivity {
 
                 String name = snapshot.child("name").getValue(String.class);
                 String email = snapshot.child("email").getValue(String.class);
-                String role = snapshot.child("role").getValue(String.class);
                 String profileUrl = snapshot.child("profileUrl").getValue(String.class);
                 ArrayList<String> enrolled = snapshot.child("enrolledClasses").getValue(new GenericTypeIndicator<ArrayList<String>>() {
                 });
@@ -86,14 +101,14 @@ public class ProfileActivity extends AppCompatActivity {
                 Toast.makeText(ProfileActivity.this, "Error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+    }
 
-        btnUpdateProfile.setOnClickListener(v ->
-                startActivity(new Intent(ProfileActivity.this, UpdateProfileActivity.class)));
-
-        btnLogout.setOnClickListener(v -> {
-            mAuth.signOut();
-            startActivity(new Intent(ProfileActivity.this, LoginActivity.class));
-            finish();
-        });
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 100 && resultCode == RESULT_OK) {
+            // Reload user data when returning from UpdateProfileActivity
+            loadUserData();
+        }
     }
 }
