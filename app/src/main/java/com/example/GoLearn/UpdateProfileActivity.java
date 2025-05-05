@@ -11,11 +11,11 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthCredential;
@@ -62,7 +62,7 @@ public class UpdateProfileActivity extends AppCompatActivity {
             return;
         }
 
-        userRef = FirebaseDatabase.getInstance().getReference("users").child(currentUser.getUid());
+        userRef = FirebaseDatabase.getInstance().getReference("GoLearn/Users").child(currentUser.getUid());
         loadUserData();
 
         btnChooseImage.setOnClickListener(v -> pickImageFromGallery());
@@ -89,11 +89,19 @@ public class UpdateProfileActivity extends AppCompatActivity {
             if (snapshot.exists()) {
                 etName.setText(snapshot.child("name").getValue(String.class));
                 profileUrl = snapshot.child("profileUrl").getValue(String.class);
-                if (profileUrl == null || profileUrl.isEmpty()) profileUrl = DEFAULT_IMAGE_URL;
+                if (profileUrl == null || profileUrl.isEmpty()) {
+                    profileUrl = DEFAULT_IMAGE_URL;
+                }
+
+                String glideUrl = profileUrl + "?t=" + System.currentTimeMillis(); // Force fresh load
 
                 Glide.with(this)
-                        .load(profileUrl)
-                        .apply(new RequestOptions().placeholder(R.drawable.ic_person_black).circleCrop())
+                        .load(glideUrl)
+                        .apply(new RequestOptions()
+                                .placeholder(R.drawable.ic_person_black)
+                                .circleCrop()
+                                .skipMemoryCache(true)
+                                .diskCacheStrategy(DiskCacheStrategy.NONE))
                         .into(imgProfile);
             }
         }).addOnFailureListener(e -> tilName.setError("Failed to load profile"));
@@ -140,9 +148,10 @@ public class UpdateProfileActivity extends AppCompatActivity {
             }
 
             AuthCredential credential = EmailAuthProvider.getCredential(currentUser.getEmail(), oldPwd);
-            currentUser.reauthenticate(credential).addOnSuccessListener(unused -> {
-                currentUser.updatePassword(newPwd).addOnSuccessListener(unused1 -> updateProfileData());
-            }).addOnFailureListener(e -> tilOldPassword.setError("Incorrect old password"));
+            currentUser.reauthenticate(credential)
+                    .addOnSuccessListener(unused -> currentUser.updatePassword(newPwd)
+                            .addOnSuccessListener(unused1 -> updateProfileData()))
+                    .addOnFailureListener(e -> tilOldPassword.setError("Incorrect old password"));
         } else {
             updateProfileData();
         }
@@ -164,20 +173,17 @@ public class UpdateProfileActivity extends AppCompatActivity {
         tilName.setError(null); // Clear previous errors
 
         if (selectedImageUri != null) {
-            Log.d("PROFILE_UPDATE", "Selected image URI: " + selectedImageUri);
-
+            // Define the image name
+            String imageName = currentUser.getUid() + ".jpg";
             StorageReference storageRef = FirebaseStorage.getInstance()
-                    .getReference("GoLearn/images/" + currentUser.getUid() + ".jpg");
+                    .getReference("GoLearn/images/" + imageName);
 
             storageRef.putFile(selectedImageUri)
                     .addOnSuccessListener(taskSnapshot -> {
-                        Log.d("PROFILE_UPDATE", "Image uploaded successfully");
-
                         storageRef.getDownloadUrl()
                                 .addOnSuccessListener(uri -> {
-                                    profileUrl = uri.toString();
-                                    Log.d("PROFILE_UPDATE", "Image download URL: " + profileUrl);
-                                    saveDataToDatabase(name);
+                                    profileUrl = uri.toString(); // Get the full URL
+                                    saveDataToDatabase(name, imageName); // Pass the image name
                                 })
                                 .addOnFailureListener(e -> {
                                     tilName.setError("Failed to get image URL: " + e.getMessage());
@@ -190,9 +196,36 @@ public class UpdateProfileActivity extends AppCompatActivity {
                     });
 
         } else {
-            Log.d("PROFILE_UPDATE", "No image selected, updating only name");
-            saveDataToDatabase(name);
+            saveDataToDatabase(name, null); // No image selected
         }
+    }
+
+    private void saveDataToDatabase(String name, @Nullable String imageName) {
+        if (currentUser == null) return;
+
+        DatabaseReference userRef = FirebaseDatabase.getInstance()
+                .getReference("GoLearn/Users")
+                .child(currentUser.getUid());
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("name", name);
+        if (profileUrl != null) {
+            map.put("profileUrl", profileUrl);
+        }
+        if (imageName != null) {
+            map.put("profileImageName", imageName); // Save the image name
+        }
+
+        userRef.updateChildren(map).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                Toast.makeText(this, "Profile updated", Toast.LENGTH_SHORT).show();
+                setResult(RESULT_OK);
+                finish();
+            } else {
+                tilName.setError("Failed to update profile");
+                Log.e("PROFILE_UPDATE", "Database update failed", task.getException());
+            }
+        });
     }
 
     private void saveDataToDatabase(String name) {
