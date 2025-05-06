@@ -63,9 +63,24 @@ public class TeacherClassesActivity extends AppCompatActivity {
                     String id = classSnapshot.getKey();
                     String title = classSnapshot.child("title").getValue(String.class);
                     String description = classSnapshot.child("description").getValue(String.class);
-                    teacherClassList.add(new ClassItem(id, title, description, R.drawable.ic_class, null));
+                    String teacherId = classSnapshot.child("teacherId").getValue(String.class);
+
+                    // Fetch teacher name from the users node
+                    DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(teacherId);
+                    userRef.child("name").addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot teacherSnap) {
+                            String teacherName = teacherSnap.getValue(String.class);
+                            teacherClassList.add(new ClassItem(id, title, description, R.drawable.ic_class, teacherName));
+                            classAdapter.notifyDataSetChanged();
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+                            Toast.makeText(TeacherClassesActivity.this, "Failed to load teacher name", Toast.LENGTH_SHORT).show();
+                        }
+                    });
                 }
-                classAdapter.notifyDataSetChanged();
             }
 
             @Override

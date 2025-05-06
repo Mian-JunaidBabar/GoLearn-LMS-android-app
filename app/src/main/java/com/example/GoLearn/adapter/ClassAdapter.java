@@ -48,7 +48,6 @@ public class ClassAdapter extends RecyclerView.Adapter<ClassAdapter.ClassViewHol
         holder.teacher.setText("By " + item.getTeacherName());
         holder.assignments.setText(String.valueOf(item.getStatus()));
         holder.image.setImageResource(item.getIconResId());
-        holder.classCode.setText("Code: " + item.getCode());
 
         // Handle assignment status and obtained points
         if (item.isStudentAssignment()) {
@@ -72,7 +71,7 @@ public class ClassAdapter extends RecyclerView.Adapter<ClassAdapter.ClassViewHol
     }
 
     public static class ClassViewHolder extends RecyclerView.ViewHolder {
-        TextView title, description, teacher, assignments, submissionStatus, obtainedPoints, classCode;
+        TextView title, description, teacher, assignments, submissionStatus, obtainedPoints;
         ImageView image;
 
         public ClassViewHolder(@NonNull View itemView) {
@@ -86,7 +85,6 @@ public class ClassAdapter extends RecyclerView.Adapter<ClassAdapter.ClassViewHol
             image = itemView.findViewById(R.id.class_image);
             submissionStatus = itemView.findViewById(R.id.assignment_status);
             obtainedPoints = itemView.findViewById(R.id.assignment_obtained_points);
-            classCode = itemView.findViewById(R.id.class_code_label);
         }
     }
 }

@@ -105,11 +105,27 @@ public class ManageHomeFragment extends Fragment {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 String title = snapshot.child("title").getValue(String.class);
                 String desc = snapshot.child("description").getValue(String.class);
+                String classCode = snapshot.child("classCode").getValue(String.class); // Fetch class code
                 Long createdAt = snapshot.child("createdAt").getValue(Long.class);
 
                 classTitleTextView.setText(title != null ? title : "N/A");
                 classDescTextView.setText(desc != null ? desc : "N/A");
-                classCodeLabel.setText("Code: " + classId);
+                classCodeLabel.setText("Code: " + (classCode != null ? classCode : "N/A")); // Display class code
+
+                // Update button listeners with classCode
+                btnCopyCode.setOnClickListener(v -> {
+                    ClipboardManager clipboard = (ClipboardManager) requireContext().getSystemService(Context.CLIPBOARD_SERVICE);
+                    ClipData clip = ClipData.newPlainText("Class Code", classCode);
+                    clipboard.setPrimaryClip(clip);
+                    Toast.makeText(getContext(), "Class code copied", Toast.LENGTH_SHORT).show();
+                });
+
+                btnShareCode.setOnClickListener(v -> {
+                    Intent shareIntent = new Intent(Intent.ACTION_SEND);
+                    shareIntent.setType("text/plain");
+                    shareIntent.putExtra(Intent.EXTRA_TEXT, "Join my class using this code: " + classCode);
+                    startActivity(Intent.createChooser(shareIntent, "Share Class Code"));
+                });
 
                 if (createdAt != null) {
                     String formattedDate = android.text.format.DateFormat.format("dd-MM-yyyy HH:mm", createdAt).toString();
