@@ -36,10 +36,10 @@ public class ClassPeopleFragment extends Fragment {
 
         // Static data
         peopleList = new ArrayList<>();
-        peopleList.add(new PersonItem("Mr. Ahmed Khan", "Teacher"));
-        peopleList.add(new PersonItem("Ali Raza", "Student"));
-        peopleList.add(new PersonItem("Sara Malik", "Student"));
-        peopleList.add(new PersonItem("Hassan Javed", "Student"));
+        peopleList.add(new PersonItem("1", "Mr. Ahmed Khan", "Teacher"));
+        peopleList.add(new PersonItem("2", "Ali Raza", "Student"));
+        peopleList.add(new PersonItem("3", "Sara Malik", "Student"));
+        peopleList.add(new PersonItem("4", "Hassan Javed", "Student"));
 
         adapter = new PeopleAdapter(peopleList);
         recyclerView.setAdapter(adapter);
