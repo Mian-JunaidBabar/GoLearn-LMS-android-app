@@ -17,12 +17,12 @@
         android:textStyle="bold" />
 
     <com.google.android.material.textfield.TextInputLayout
-        app:boxBackgroundMode="outline"
-        app:boxStrokeColor="#1A237E"
-        app:hintEnabled="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp">
+        android:layout_marginBottom="16dp"
+        app:boxBackgroundMode="outline"
+        app:boxStrokeColor="#1A237E"
+        app:hintEnabled="true">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/editTextClassTitle"
@@ -36,23 +36,28 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
-        app:boxBackgroundMode="outline"
-        app:boxStrokeColor="#1A237E"
-        app:hintEnabled="true"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="20dp">
+        android:layout_marginBottom="20dp"
+        app:boxBackgroundMode="outline"
+        app:boxStrokeColor="#1A237E"
+        app:hintEnabled="true">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/editTextClassDescription"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="top|start"
             android:hint="Class Description"
-            android:inputType="textCapSentences"
+            android:inputType="textMultiLine|textCapSentences"
+            android:maxLines="6"
+            android:minLines="4"
             android:padding="12dp"
+            android:scrollbars="vertical"
             android:textColor="#000"
             android:textSize="16sp" />
     </com.google.android.material.textfield.TextInputLayout>
+
 
     <Button
         android:id="@+id/buttonCreateClass"

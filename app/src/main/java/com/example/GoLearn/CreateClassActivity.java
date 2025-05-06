@@ -8,7 +8,12 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 public class CreateClassActivity extends AppCompatActivity {
@@ -16,41 +21,88 @@ public class CreateClassActivity extends AppCompatActivity {
     private TextInputEditText etTitle, etDescription;
     private Button btnCreateClass;
 
+    private FirebaseAuth mAuth;
+    private DatabaseReference classRef;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_class);
 
-        // Initialize views
         etTitle = findViewById(R.id.editTextClassTitle);
         etDescription = findViewById(R.id.editTextClassDescription);
         btnCreateClass = findViewById(R.id.buttonCreateClass);
 
-        // Set button click listener
-        btnCreateClass.setOnClickListener(v -> {
-            String title = etTitle.getText().toString().trim();
-            String desc = etDescription.getText().toString().trim();
+        mAuth = FirebaseAuth.getInstance();
+        classRef = FirebaseDatabase.getInstance().getReference("classes");
 
-            if (title.isEmpty() || desc.isEmpty()) {
-                Toast.makeText(this, "Enter title and description", Toast.LENGTH_SHORT).show();
-                return;
-            }
+        btnCreateClass.setOnClickListener(v -> createClass());
+    }
 
-            // Create a new class item
-            String fakeClassId = UUID.randomUUID().toString();
-            int defaultIconResId = R.drawable.ic_class; // Replace with your default icon resource
-            String defaultStatus = "Active"; // Default status for the class
+    private void createClass() {
+        String title = etTitle.getText().toString().trim();
+        String description = etDescription.getText().toString().trim();
 
-            // Pass each field separately
-            Intent resultIntent = new Intent();
-            resultIntent.putExtra("id", fakeClassId);
-            resultIntent.putExtra("title", title);
-            resultIntent.putExtra("description", desc);
-            resultIntent.putExtra("iconResId", defaultIconResId);
-            resultIntent.putExtra("status", defaultStatus);
+        if (title.isEmpty() || description.isEmpty()) {
+            Toast.makeText(this, "Enter title and description", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
-            setResult(RESULT_OK, resultIntent);
-            finish();
+        String uid = mAuth.getUid();
+        if (uid == null) {
+            Toast.makeText(this, "Not logged in", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users").child(uid);
+        userRef.child("name").get().addOnSuccessListener(dataSnapshot -> {
+            final String teacherName = dataSnapshot.getValue(String.class) != null
+                    ? dataSnapshot.getValue(String.class)
+                    : "Unknown";
+
+            String classId = UUID.randomUUID().toString();
+            String classCode = generateClassCode();
+            long timestamp = System.currentTimeMillis();
+
+            // Class data
+            Map<String, Object> classData = new HashMap<>();
+            classData.put("title", title);
+            classData.put("description", description);
+            classData.put("teacherId", uid);
+            classData.put("classCode", classCode);
+            classData.put("createdAt", timestamp);
+
+            // Write /classes/{classId}
+            classRef.child(classId).setValue(classData).addOnSuccessListener(aVoid -> {
+                // Add teacher as member
+                Map<String, Object> memberData = new HashMap<>();
+                memberData.put("uid", uid);
+                memberData.put("role", "teacher");
+                memberData.put("joinedAt", timestamp);
+                memberData.put("name", teacherName);
+
+                classRef.child(classId).child("members").child(uid).setValue(memberData)
+                        .addOnSuccessListener(unused -> {
+                            Toast.makeText(this, "Class created", Toast.LENGTH_SHORT).show();
+
+                            Intent intent = new Intent(CreateClassActivity.this, ManageClassActivity.class);
+                            intent.putExtra("classId", classId);
+                            startActivity(intent);
+                            finish();
+                        })
+                        .addOnFailureListener(e ->
+                                Toast.makeText(this, "Failed to add teacher to class", Toast.LENGTH_SHORT).show());
+            }).addOnFailureListener(e ->
+                    Toast.makeText(this, "Failed to create class", Toast.LENGTH_SHORT).show());
+
+        }).addOnFailureListener(e -> {
+            Toast.makeText(this, "Could not fetch user name", Toast.LENGTH_SHORT).show();
         });
+    }
+
+
+    private String generateClassCode() {
+        // You can make this more sophisticated later (check for uniqueness, etc.)
+        return UUID.randomUUID().toString().substring(0, 6).toUpperCase();
     }
 }
