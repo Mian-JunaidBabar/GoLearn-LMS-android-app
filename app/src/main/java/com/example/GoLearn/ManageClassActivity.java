@@ -22,12 +22,14 @@ import com.google.firebase.auth.FirebaseAuth;
 public class ManageClassActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private DrawerLayout drawerLayout;
+    private String classId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_manage_class);
 
+        classId = getIntent().getStringExtra("classId");
         String classTitle = getIntent().getStringExtra("classTitle");
 
         // Initialize Toolbar
@@ -49,7 +51,7 @@ public class ManageClassActivity extends AppCompatActivity implements Navigation
         BottomNavigationView bottomNav = findViewById(R.id.bottom_navigation);
 
         // Load default fragment
-        loadFragment(new ManageHomeFragment());
+        loadFragment(new ManageHomeFragment(), classId);
 
         // Set up item selection listener
         bottomNav.setOnItemSelectedListener(item -> {
@@ -64,7 +66,7 @@ public class ManageClassActivity extends AppCompatActivity implements Navigation
             }
 
             if (selected != null) {
-                loadFragment(selected);
+                loadFragment(selected, classId);
                 return true;
             }
             return false;
@@ -72,7 +74,11 @@ public class ManageClassActivity extends AppCompatActivity implements Navigation
     }
 
     // Method to load fragments
-    private void loadFragment(Fragment fragment) {
+    private void loadFragment(Fragment fragment, String classId) {
+        Bundle args = new Bundle();
+        args.putString("classId", classId);
+        fragment.setArguments(args);
+
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.manageFragmentContainer, fragment)
                 .commit();
@@ -117,7 +123,7 @@ public class ManageClassActivity extends AppCompatActivity implements Navigation
             }
 
             if (selectedFragment != null) {
-                loadFragment(selectedFragment);
+                loadFragment(selectedFragment, classId);
             }
         }
 

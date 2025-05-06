@@ -23,6 +23,11 @@ import com.example.GoLearn.AddAssignmentActivity;
 import com.example.GoLearn.R;
 import com.example.GoLearn.adapter.AssignmentAdapter;
 import com.example.GoLearn.model.AssignmentItem;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
@@ -34,13 +39,20 @@ public class ManageHomeFragment extends Fragment {
     private RecyclerView assignmentsRecyclerView;
     private AssignmentAdapter assignmentAdapter;
     private ArrayList<AssignmentItem> assignmentList;
-    private String classCode = "ABC123"; // Example class code
+    private String classId;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_manage_home, container, false);
+
+        // Get classId from arguments
+        classId = getArguments() != null ? getArguments().getString("classId") : null;
+        if (classId == null) {
+            Toast.makeText(getContext(), "Error: classId not found", Toast.LENGTH_SHORT).show();
+            return view;
+        }
 
         // Initialize views
         classTitleTextView = view.findViewById(R.id.manage_class_title);
@@ -52,45 +64,87 @@ public class ManageHomeFragment extends Fragment {
         addAssignmentButton = view.findViewById(R.id.btn_add_assignment);
         assignmentsRecyclerView = view.findViewById(R.id.recycler_manage_assignments);
 
-        // Set class details
-        classTitleTextView.setText("AI Advanced");
-        classDescTextView.setText("Deep Learning Project");
-        classStatusTextView.setText("Status: Active");
-        classCodeLabel.setText("Code: " + classCode);
+        // Setup RecyclerView
+        assignmentList = new ArrayList<>();
+        assignmentAdapter = new AssignmentAdapter(getContext(), assignmentList);
+        assignmentsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        assignmentsRecyclerView.setAdapter(assignmentAdapter);
 
-        // Copy class code to clipboard
+        loadClassDetails();
+        loadAssignments();
+
+        // Copy class code
         btnCopyCode.setOnClickListener(v -> {
             ClipboardManager clipboard = (ClipboardManager) requireContext().getSystemService(Context.CLIPBOARD_SERVICE);
-            ClipData clip = ClipData.newPlainText("Class Code", classCode);
+            ClipData clip = ClipData.newPlainText("Class Code", classId);
             clipboard.setPrimaryClip(clip);
-            Toast.makeText(getContext(), "Class code copied to clipboard", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Class code copied", Toast.LENGTH_SHORT).show();
         });
 
         // Share class code
         btnShareCode.setOnClickListener(v -> {
             Intent shareIntent = new Intent(Intent.ACTION_SEND);
             shareIntent.setType("text/plain");
-            shareIntent.putExtra(Intent.EXTRA_TEXT, "Join my class using this code: " + classCode);
+            shareIntent.putExtra(Intent.EXTRA_TEXT, "Join my class using this code: " + classId);
             startActivity(Intent.createChooser(shareIntent, "Share Class Code"));
         });
 
-        // Initialize assignment list
-        assignmentList = new ArrayList<>();
-        assignmentList.add(new AssignmentItem("Assignment 1", "2023-10-01", "Submit research topic", "10 points"));
-        assignmentList.add(new AssignmentItem("Assignment 2", "2023-10-15", "Upload model architecture", "20 points"));
-
-        // Set up RecyclerView
-        assignmentAdapter = new AssignmentAdapter(getContext(), assignmentList);
-        assignmentsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        assignmentsRecyclerView.setAdapter(assignmentAdapter);
-
-        // Add assignment button click listener
         addAssignmentButton.setOnClickListener(v -> {
-            // Handle add assignment action
             Intent intent = new Intent(getContext(), AddAssignmentActivity.class);
+            intent.putExtra("classId", classId); // Pass classId to AddAssignmentActivity
             startActivity(intent);
         });
 
         return view;
+    }
+
+    private void loadClassDetails() {
+        DatabaseReference classRef = FirebaseDatabase.getInstance().getReference("classes").child(classId);
+        classRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                String title = snapshot.child("title").getValue(String.class);
+                String desc = snapshot.child("description").getValue(String.class);
+                Long createdAt = snapshot.child("createdAt").getValue(Long.class);
+
+                classTitleTextView.setText(title != null ? title : "N/A");
+                classDescTextView.setText(desc != null ? desc : "N/A");
+                classCodeLabel.setText("Code: " + classId);
+
+                if (createdAt != null) {
+                    String formattedDate = android.text.format.DateFormat.format("dd-MM-yyyy HH:mm", createdAt).toString();
+                    classStatusTextView.setText("Created At: " + formattedDate);
+                } else {
+                    classStatusTextView.setText("Created At: Unknown");
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(getContext(), "Failed to load class details", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void loadAssignments() {
+        DatabaseReference assignRef = FirebaseDatabase.getInstance().getReference("assignments");
+        assignRef.orderByChild("classId").equalTo(classId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                assignmentList.clear();
+                for (DataSnapshot snap : snapshot.getChildren()) {
+                    AssignmentItem item = snap.getValue(AssignmentItem.class);
+                    if (item != null) {
+                        assignmentList.add(item);
+                    }
+                }
+                assignmentAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(getContext(), "Failed to load assignments", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }
