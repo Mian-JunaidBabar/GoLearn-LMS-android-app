@@ -121,7 +121,9 @@ public class ClassActivity extends AppCompatActivity implements NavigationView.O
         if (item.getItemId() == R.id.nav_profile) {
             startActivity(new Intent(this, ProfileActivity.class));
         } else if (item.getItemId() == R.id.nav_teacher_classes) {
-            startActivity(new Intent(this, ManageClassActivity.class));
+            startActivity(new Intent(this, TeacherClassesActivity.class));
+        } else if (item.getItemId() == R.id.nav_profile) {
+            startActivity(new Intent(this, ProfileActivity.class));
         } else if (item.getItemId() == R.id.nav_logout) {
             FirebaseAuth.getInstance().signOut();
             Intent intent = new Intent(this, LoginActivity.class);

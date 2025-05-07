@@ -100,10 +100,10 @@ public class ManageClassActivity extends AppCompatActivity implements Navigation
             startActivity(new Intent(this, DashboardActivity.class));
         } else if (item.getItemId() == R.id.nav_teacher_classes) {
             // Navigate to ManageClassActivity
-            startActivity(new Intent(this, ManageClassActivity.class));
+            startActivity(new Intent(this, TeacherClassesActivity.class));
         } else if (item.getItemId() == R.id.nav_profile) {
             // Navigate to ManageClassActivity
-            startActivity(new Intent(this, ManageClassActivity.class));
+            startActivity(new Intent(this, ProfileActivity.class));
         } else if (item.getItemId() == R.id.nav_logout) {
             // Handle logout
             FirebaseAuth.getInstance().signOut(); // Sign out the user
