@@ -22,39 +22,77 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <EditText
-                android:id="@+id/et_assignment_title"
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Assignment Title" />
+                android:layout_marginBottom="10dp"
+                android:hint="Assignment Title">
 
-            <EditText
-                android:id="@+id/et_assignment_description"
+                <EditText
+                    android:id="@+id/et_assignment_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="top"
-                android:hint="Description"
-                android:minLines="3" />
+                android:layout_marginBottom="10dp"
+                android:hint="Description">
 
-            <EditText
-                android:id="@+id/et_due_date"
+                <EditText
+                    android:id="@+id/et_assignment_description"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="top"
+                    android:minLines="3" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:clickable="true"
-                android:focusable="false"
-                android:hint="Due Date"
-                android:inputType="none" />
+                android:layout_marginBottom="10dp"
+                android:hint="Due Date">
 
+                <EditText
+                    android:id="@+id/et_due_date"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clickable="true"
+                    android:focusable="false"
+                    android:inputType="none" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-            <EditText
-                android:id="@+id/et_total_points"
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Total Points"
-                android:inputType="number" />
+                android:layout_marginBottom="10dp"
+                android:hint="Points">
+
+                <EditText
+                    android:id="@+id/et_points"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="number" />
+            </com.google.android.material.textfield.TextInputLayout>
 
             <Button
-                android:id="@+id/btn_submit_assignment"
+                android:id="@+id/btn_upload_file"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:backgroundTint="@color/primaryColor"
+                android:text="Upload File" />
+
+            <TextView
+                android:id="@+id/tv_file_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="4dp"
+                android:text="No file selected" />
+
+            <Button
+                android:id="@+id/btn_create_assignment"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
