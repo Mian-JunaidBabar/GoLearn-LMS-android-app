@@ -2,35 +2,65 @@ package com.example.GoLearn.model;
 
 public class AssignmentItem {
 
-    public AssignmentItem(String title, String assignmentId, String dueDate, String description, String points) {
-        this.title = title;
-        this.assignmentId = assignmentId;
-        this.dueDate = dueDate;
-        this.description = description;
-        this.points = points;
-    }
-
-    private String title;
     private String assignmentId;
-    private String dueDate;
+    private String classId;
+    private long createdAt;
+    private String createdBy;
     private String description;
-    private String points;
+    private long dueDate;
+    private String filePath;
+    private int points;
+    private String title;
 
-
-    public String getTitle() {
-        return title;
+    // Default constructor required for Firebase
+    public AssignmentItem() {
     }
 
-    public void setTitle(String title) {
+    // Parameterized constructor
+    public AssignmentItem(String assignmentId, String classId, long createdAt, String createdBy,
+                          String description, long dueDate, String filePath, int points, String title) {
+        this.assignmentId = assignmentId;
+        this.classId = classId;
+        this.createdAt = createdAt;
+        this.createdBy = createdBy;
+        this.description = description;
+        this.dueDate = dueDate;
+        this.filePath = filePath;
+        this.points = points;
         this.title = title;
     }
 
-    public String getDueDate() {
-        return dueDate;
+    // Getters and Setters
+    public String getAssignmentId() {
+        return assignmentId;
     }
 
-    public void setDueDate(String dueDate) {
-        this.dueDate = dueDate;
+    public void setAssignmentId(String assignmentId) {
+        this.assignmentId = assignmentId;
+    }
+
+    public String getClassId() {
+        return classId;
+    }
+
+    public void setClassId(String classId) {
+        this.classId = classId;
+    }
+
+    public long getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(long createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public String getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
     }
 
     public String getDescription() {
@@ -41,19 +71,35 @@ public class AssignmentItem {
         this.description = description;
     }
 
-    public String getPoints() {
+    public long getDueDate() {
+        return dueDate;
+    }
+
+    public void setDueDate(long dueDate) {
+        this.dueDate = dueDate;
+    }
+
+    public String getFilePath() {
+        return filePath;
+    }
+
+    public void setFilePath(String filePath) {
+        this.filePath = filePath;
+    }
+
+    public int getPoints() {
         return points;
     }
 
-    public void setPoints(String points) {
+    public void setPoints(int points) {
         this.points = points;
     }
 
-    public String getAssignmentId() {
-        return assignmentId;
+    public String getTitle() {
+        return title;
     }
 
-    public void setAssignmentId(String assignmentId) {
-        this.assignmentId = assignmentId;
+    public void setTitle(String title) {
+        this.title = title;
     }
 }

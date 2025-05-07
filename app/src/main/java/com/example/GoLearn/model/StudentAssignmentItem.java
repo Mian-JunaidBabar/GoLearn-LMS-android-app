@@ -4,12 +4,19 @@ public class StudentAssignmentItem extends AssignmentItem {
     private boolean isSubmitted;
     private int obtainedPoints;
 
-    public StudentAssignmentItem(String title, String assignmentId, String dueDate, String description, String points, boolean isSubmitted, int obtainedPoints) {
-        super(title, assignmentId, dueDate, description, points);
+    // Default constructor
+    public StudentAssignmentItem() {
+        super();
+    }
+
+    // Parameterized constructor
+    public StudentAssignmentItem(String assignmentId, String classId, long createdAt, String createdBy,
+                                 String description, long dueDate, String filePath, int points, String title,
+                                 boolean isSubmitted, int obtainedPoints) {
+        super(assignmentId, classId, createdAt, createdBy, description, dueDate, filePath, points, title);
         this.isSubmitted = isSubmitted;
         this.obtainedPoints = obtainedPoints;
     }
-
 
     // Getter and Setter for isSubmitted
     public boolean isSubmitted() {
@@ -32,17 +39,22 @@ public class StudentAssignmentItem extends AssignmentItem {
     // Method to update assignment submission status
     public void updateSubmission(boolean submitted, int points) {
         this.isSubmitted = submitted;
-        this.obtainedPoints = points;
+        if (points >= 0 && points <= getPoints()) {
+            this.obtainedPoints = points;
+        } else {
+            throw new IllegalArgumentException("Obtained points must be between 0 and the total points.");
+        }
     }
 
     // Override toString for better debugging
     @Override
     public String toString() {
         return "StudentAssignmentItem{" +
-                "title='" + getTitle() + '\'' +
-                ", dueDate='" + getDueDate() + '\'' +
+                "assignmentId='" + getAssignmentId() + '\'' +
+                ", title='" + getTitle() + '\'' +
+                ", dueDate=" + getDueDate() +
                 ", description='" + getDescription() + '\'' +
-                ", points='" + getPoints() + '\'' +
+                ", points=" + getPoints() +
                 ", isSubmitted=" + isSubmitted +
                 ", obtainedPoints=" + obtainedPoints +
                 '}';

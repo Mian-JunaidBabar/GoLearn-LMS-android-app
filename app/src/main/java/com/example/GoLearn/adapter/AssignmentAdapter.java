@@ -11,10 +11,12 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.GoLearn.R;
-import com.example.GoLearn.model.AssignmentItem;
 import com.example.GoLearn.AssignmentSubmissionsActivity;
+import com.example.GoLearn.model.AssignmentItem;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Locale;
 
 public class AssignmentAdapter extends RecyclerView.Adapter<AssignmentAdapter.AssignmentViewHolder> {
 
@@ -38,7 +40,7 @@ public class AssignmentAdapter extends RecyclerView.Adapter<AssignmentAdapter.As
         AssignmentItem item = assignmentList.get(position);
 
         holder.title.setText(item.getTitle());
-        holder.dueDate.setText("Due: " + item.getDueDate());
+        holder.dueDate.setText("Due: " + formatDate(item.getDueDate()));
         holder.points.setText("Points: " + item.getPoints());
 
         holder.itemView.setOnClickListener(v -> {
@@ -55,6 +57,11 @@ public class AssignmentAdapter extends RecyclerView.Adapter<AssignmentAdapter.As
     @Override
     public int getItemCount() {
         return assignmentList.size();
+    }
+
+    private String formatDate(long timestamp) {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy", Locale.getDefault());
+        return sdf.format(timestamp);
     }
 
     public static class AssignmentViewHolder extends RecyclerView.ViewHolder {
