@@ -3,13 +3,22 @@ package com.example.GoLearn.model;
 public class PersonItem {
     String id;
     private String name;
-    private String role; // "Teacher" or "Student"
+    private String role;
+    private Long joinedAt;// "Teacher" or "Student"
+
+    public PersonItem(String id, String name, String role, Long joinedAt) {
+        this.id = id;
+        this.name = name;
+        this.role = role;
+        this.joinedAt = joinedAt;
+    }
 
     public PersonItem(String id, String name, String role) {
-        this.name = name;
         this.id = id;
+        this.name = name;
         this.role = role;
     }
+
 
     public String getName() {
         return name;
@@ -33,5 +42,13 @@ public class PersonItem {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public Long getJoinedAt() {
+        return joinedAt;
+    }
+
+    public void setJoinedAt(Long joinedAt) {
+        this.joinedAt = joinedAt;
     }
 }
