@@ -16,7 +16,7 @@ import com.example.GoLearn.AssignmentSubmissionsActivity;
 
 import java.util.List;
 
-public class AssignmentAdapter extends RecyclerView.Adapter<AssignmentAdapter.TeacherViewHolder> {
+public class AssignmentAdapter extends RecyclerView.Adapter<AssignmentAdapter.AssignmentViewHolder> {
 
     private Context context;
     private List<AssignmentItem> assignmentList;
@@ -28,13 +28,13 @@ public class AssignmentAdapter extends RecyclerView.Adapter<AssignmentAdapter.Te
 
     @NonNull
     @Override
-    public TeacherViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public AssignmentViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(context).inflate(R.layout.item_assignment, parent, false);
-        return new TeacherViewHolder(view);
+        return new AssignmentViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull TeacherViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull AssignmentViewHolder holder, int position) {
         AssignmentItem item = assignmentList.get(position);
 
         holder.title.setText(item.getTitle());
@@ -43,6 +43,7 @@ public class AssignmentAdapter extends RecyclerView.Adapter<AssignmentAdapter.Te
 
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(context, AssignmentSubmissionsActivity.class);
+            intent.putExtra("assignmentId", item.getAssignmentId());
             intent.putExtra("title", item.getTitle());
             intent.putExtra("dueDate", item.getDueDate());
             intent.putExtra("description", item.getDescription());
@@ -56,10 +57,10 @@ public class AssignmentAdapter extends RecyclerView.Adapter<AssignmentAdapter.Te
         return assignmentList.size();
     }
 
-    public static class TeacherViewHolder extends RecyclerView.ViewHolder {
+    public static class AssignmentViewHolder extends RecyclerView.ViewHolder {
         TextView title, dueDate, points;
 
-        public TeacherViewHolder(@NonNull View itemView) {
+        public AssignmentViewHolder(@NonNull View itemView) {
             super(itemView);
             title = itemView.findViewById(R.id.assignment_title);
             dueDate = itemView.findViewById(R.id.assignment_due);

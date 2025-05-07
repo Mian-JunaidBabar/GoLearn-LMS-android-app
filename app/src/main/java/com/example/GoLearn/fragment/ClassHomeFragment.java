@@ -4,18 +4,25 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.GoLearn.R;
-import com.example.GoLearn.adapter.StudentAssignmentAdapter;
+import com.example.GoLearn.adapter.AssignmentAdapter;
 import com.example.GoLearn.model.AssignmentItem;
-import com.example.GoLearn.model.StudentAssignmentItem;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,8 +30,13 @@ import java.util.List;
 public class ClassHomeFragment extends Fragment {
 
     private RecyclerView rvAssignments;
-    private TextView submittedSummary, classDesc, teacherName, totalMembers;
-    private List<AssignmentItem> assignmentList;
+    private TextView tvClassTitle, tvClassDesc, tvTeacherName, tvMemberCount, tvClassCode, tvSubmissionSummary;
+    private Button btnLeaveClass;
+    private ImageButton btnCopyCode, btnShareClass;
+    private String classId;
+
+    private FirebaseAuth mAuth;
+    private String currentUserId;
 
     public ClassHomeFragment() {
     }
@@ -39,26 +51,128 @@ public class ClassHomeFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        submittedSummary = view.findViewById(R.id.submitted_summary);
-        classDesc = view.findViewById(R.id.class_description);
-        teacherName = view.findViewById(R.id.teacher_name);
-        totalMembers = view.findViewById(R.id.total_members);
+        // Initialize UI elements
+        tvClassTitle = view.findViewById(R.id.text_class_title);
+        tvClassDesc = view.findViewById(R.id.text_class_desc);
+        tvTeacherName = view.findViewById(R.id.text_teacher_name);
+        tvMemberCount = view.findViewById(R.id.text_member_count);
+        tvClassCode = view.findViewById(R.id.text_class_code);
+        tvSubmissionSummary = view.findViewById(R.id.text_submitted_summary);
+        btnLeaveClass = view.findViewById(R.id.btn_leave_class);
+        btnCopyCode = view.findViewById(R.id.btn_copy_code);
+        btnShareClass = view.findViewById(R.id.btn_share_code);
+
         rvAssignments = view.findViewById(R.id.rv_assignments);
 
-        // Static details
-        classDesc.setText("Course: Introduction to AI and ML");
-        teacherName.setText("Teacher: Sir Adeel Mughal");
-        totalMembers.setText("Total Members: 30");
-        submittedSummary.setText("Submitted Assignments: 3");
+        mAuth = FirebaseAuth.getInstance();
+        currentUserId = mAuth.getCurrentUser().getUid();
 
-        // Initialize assignment list
-        assignmentList = new ArrayList<>();
-        assignmentList.add(new StudentAssignmentItem("Math Homework", "2025-05-03", "Complete exercises 1-10 from Chapter 5", "10 points", true, 8));
-        assignmentList.add(new StudentAssignmentItem("Science Report", "2025-05-04", "Write a report on renewable energy sources", "20 points", false, 0));
+        classId = getArguments() != null ? getArguments().getString("classId") : null;
 
-        // Set up RecyclerView
-        StudentAssignmentAdapter studentAdapter = new StudentAssignmentAdapter(getContext(), (List<StudentAssignmentItem>) (List<?>) assignmentList);
-        rvAssignments.setLayoutManager(new LinearLayoutManager(getContext()));
-        rvAssignments.setAdapter(studentAdapter);
+        if (classId == null) {
+            // Set dummy data if classId is not available
+            setDummyData();
+            return;
+        }
+
+        DatabaseReference classRef = FirebaseDatabase.getInstance().getReference("classes").child(classId);
+
+        // 1. Load class description
+        classRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                String title = snapshot.child("title").getValue(String.class);
+                tvClassTitle.setText(title != null ? title : "N/A");
+
+                String description = snapshot.child("description").getValue(String.class);
+                tvClassDesc.setText(description != null ? description : "N/A");
+
+                String classCode = snapshot.child("classCode").getValue(String.class);
+                tvClassCode.setText(classCode != null ? classCode : "N/A");
+
+                String teacherId = snapshot.child("teacherId").getValue(String.class);
+                if (teacherId != null) {
+                    FirebaseDatabase.getInstance().getReference("users").child(teacherId)
+                            .addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot teacherSnapshot) {
+                                    String teacherNameValue = teacherSnapshot.child("name").getValue(String.class);
+                                    tvTeacherName.setText("Teacher: " + (teacherNameValue != null ? teacherNameValue : "N/A"));
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError error) {
+                                    tvTeacherName.setText("Teacher: N/A");
+                                }
+                            });
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(getContext(), "Failed to load class details", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // 2. Load total members
+        classRef.child("members").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                tvMemberCount.setText("Total Members: " + (snapshot.getChildrenCount() - 1));
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                tvMemberCount.setText("Total Members: N/A");
+            }
+        });
+
+        // 3. Load assignments and calculate submission stats for current user
+        classRef.child("assignments").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                List<AssignmentItem> assignments = new ArrayList<>();
+                for (DataSnapshot assignmentSnapshot : snapshot.getChildren()) {
+                    AssignmentItem assignment = assignmentSnapshot.getValue(AssignmentItem.class);
+                    assignments.add(assignment);
+                }
+
+                AssignmentAdapter adapter = new AssignmentAdapter(getContext(), assignments);
+                rvAssignments.setAdapter(adapter);
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(getContext(), "Failed to load assignments", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        // 4. Leave class logic
+        btnLeaveClass.setOnClickListener(v -> {
+            new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                    .setTitle("Leave Class")
+                    .setMessage("Are you sure you want to leave this class?")
+                    .setPositiveButton("Yes", (dialog, which) -> {
+                        DatabaseReference memberRef = classRef.child("members").child(currentUserId);
+                        memberRef.removeValue().addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                Toast.makeText(getContext(), "You have left the class.", Toast.LENGTH_SHORT).show();
+                                requireActivity().finish(); // Close activity
+                            } else {
+                                Toast.makeText(getContext(), "Failed to leave the class. Try again.", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    })
+                    .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
+                    .show();
+        });
+    }
+
+    private void setDummyData() {
+        tvClassTitle.setText("Intro to Computer Science");
+        tvClassDesc.setText("Class description");
+        tvTeacherName.setText("Teacher: Mr. Junaid Ahmad");
+        tvMemberCount.setText("Total Members: 28");
     }
 }

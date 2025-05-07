@@ -1,6 +1,7 @@
 package com.example.GoLearn.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +11,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.GoLearn.ClassActivity;
 import com.example.GoLearn.R;
 import com.example.GoLearn.model.ClassItem;
 
@@ -35,12 +37,14 @@ public class ClassAdapter extends RecyclerView.Adapter<ClassAdapter.ClassViewHol
     @Override
     public ClassViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(context).inflate(R.layout.item_class, parent, false);
-        return new ClassViewHolder(view);
+        return new ClassViewHolder(view, listener, classList);
     }
+
 
     @Override
     public void onBindViewHolder(@NonNull ClassViewHolder holder, int position) {
         ClassItem item = classList.get(position);
+        if (item == null) return;
 
         // Bind data to views
         holder.title.setText(item.getTitle());
@@ -49,21 +53,14 @@ public class ClassAdapter extends RecyclerView.Adapter<ClassAdapter.ClassViewHol
         holder.assignments.setText(String.valueOf(item.getStatus()));
         holder.image.setImageResource(item.getIconResId());
 
-        // Handle assignment status and obtained points
-        if (item.isStudentAssignment()) {
-            holder.submissionStatus.setVisibility(View.VISIBLE);
-            holder.submissionStatus.setText(item.isSubmitted() ? "Submitted" : "Not Submitted");
-
-            holder.obtainedPoints.setVisibility(View.VISIBLE);
-            holder.obtainedPoints.setText("Points: " + item.getObtainedPoints());
-        } else {
-            holder.submissionStatus.setVisibility(View.GONE);
-            holder.obtainedPoints.setVisibility(View.GONE);
-        }
-
         // Set click listener
-        holder.itemView.setOnClickListener(v -> listener.onItemClick(item));
+        holder.itemView.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onItemClick(item);
+            }
+        });
     }
+
 
     @Override
     public int getItemCount() {
@@ -74,10 +71,8 @@ public class ClassAdapter extends RecyclerView.Adapter<ClassAdapter.ClassViewHol
         TextView title, description, teacher, assignments, submissionStatus, obtainedPoints;
         ImageView image;
 
-        public ClassViewHolder(@NonNull View itemView) {
+        public ClassViewHolder(@NonNull View itemView, OnItemClickListener listener, List<ClassItem> classList) {
             super(itemView);
-
-            // Initialize views
             title = itemView.findViewById(R.id.class_title);
             description = itemView.findViewById(R.id.class_description);
             teacher = itemView.findViewById(R.id.class_teacher);
@@ -85,6 +80,13 @@ public class ClassAdapter extends RecyclerView.Adapter<ClassAdapter.ClassViewHol
             image = itemView.findViewById(R.id.class_image);
             submissionStatus = itemView.findViewById(R.id.assignment_status);
             obtainedPoints = itemView.findViewById(R.id.assignment_obtained_points);
+
+            itemView.setOnClickListener(v -> {
+                int position = getAdapterPosition();
+                if (listener != null && position != RecyclerView.NO_POSITION) {
+                    listener.onItemClick(classList.get(position));
+                }
+            });
         }
     }
 }

@@ -9,9 +9,8 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- Class Description -->
         <TextView
-            android:id="@+id/class_description"
+            android:id="@+id/text_class_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingBottom="8dp"
@@ -20,9 +19,17 @@
             android:textSize="18sp"
             android:textStyle="bold" />
 
-        <!-- Teacher Name -->
         <TextView
-            android:id="@+id/teacher_name"
+            android:id="@+id/text_class_desc"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="8dp"
+            android:text="Class description"
+            android:textColor="#333"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/text_teacher_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingBottom="4dp"
@@ -30,9 +37,8 @@
             android:textColor="#555"
             android:textSize="16sp" />
 
-        <!-- Total Members -->
         <TextView
-            android:id="@+id/total_members"
+            android:id="@+id/text_member_count"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingBottom="16dp"
@@ -40,7 +46,6 @@
             android:textColor="#555"
             android:textSize="16sp" />
 
-        <!-- Class Code Row -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -49,7 +54,7 @@
             android:paddingBottom="12dp">
 
             <TextView
-                android:id="@+id/class_code_label"
+                android:id="@+id/text_class_code"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -74,9 +79,8 @@
                 android:src="@drawable/ic_share" />
         </LinearLayout>
 
-        <!-- Submitted Summary -->
         <TextView
-            android:id="@+id/submitted_summary"
+            android:id="@+id/text_submitted_summary"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingBottom="12dp"
@@ -85,7 +89,16 @@
             android:textSize="16sp"
             android:textStyle="bold" />
 
-        <!-- RecyclerView -->
+        <Button
+            android:id="@+id/btn_leave_class"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:backgroundTint="@color/design_default_color_error"
+            android:text="Leave Class"
+            android:textColor="@android:color/white"
+            android:textStyle="bold" />
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rv_assignments"
             android:layout_width="match_parent"

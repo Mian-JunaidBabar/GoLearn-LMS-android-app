@@ -2,6 +2,7 @@ package com.example.GoLearn.model;
 
 public class ClassItem {
 
+    private String classId;
     private String id;
     private String title;
     private String description;
@@ -15,18 +16,6 @@ public class ClassItem {
     private boolean isSubmitted;
     private int obtainedPoints;
 
-    // Full constructor
-    public ClassItem(String title, String description, String teacherName, int status, int iconResId, boolean isStudentAssignment, boolean isSubmitted, int obtainedPoints, String code) {
-        this.title = title;
-        this.description = description;
-        this.teacherName = teacherName;
-        this.status = status;
-        this.iconResId = iconResId;
-        this.isStudentAssignment = isStudentAssignment;
-        this.isSubmitted = isSubmitted;
-        this.obtainedPoints = obtainedPoints;
-        this.code = code; // Initialize the new field
-    }
 
     public ClassItem(String id, String title, String description, int iconResId, String teacherName) {
         this.id = id;
@@ -48,6 +37,20 @@ public class ClassItem {
         this.isSubmitted = false;        // Default value
         this.obtainedPoints = 0;         // Default value
         this.code = code; // Initialize the new field
+    }
+
+    public ClassItem(String classId, String id, String title, String description, String teacherName, int status, int iconResId, String code, boolean isStudentAssignment, boolean isSubmitted, int obtainedPoints) {
+        this.classId = classId;
+        this.id = id;
+        this.title = title;
+        this.description = description;
+        this.teacherName = teacherName;
+        this.status = status;
+        this.iconResId = iconResId;
+        this.code = code;
+        this.isStudentAssignment = isStudentAssignment;
+        this.isSubmitted = isSubmitted;
+        this.obtainedPoints = obtainedPoints;
     }
 
     // Getters and Setters
@@ -129,5 +132,13 @@ public class ClassItem {
 
     public void setCode(String code) {
         this.code = code; // Setter for the new field
+    }
+
+    public String getClassId() {
+        return classId;
+    }
+
+    public void setClassId(String classId) {
+        this.classId = classId;
     }
 }

@@ -4,11 +4,12 @@ public class StudentAssignmentItem extends AssignmentItem {
     private boolean isSubmitted;
     private int obtainedPoints;
 
-    public StudentAssignmentItem(String title, String dueDate, String description, String points, boolean isSubmitted, int obtainedPoints) {
-        super(title, dueDate, description, points);
+    public StudentAssignmentItem(String title, String assignmentId, String dueDate, String description, String points, boolean isSubmitted, int obtainedPoints) {
+        super(title, assignmentId, dueDate, description, points);
         this.isSubmitted = isSubmitted;
         this.obtainedPoints = obtainedPoints;
     }
+
 
     // Getter and Setter for isSubmitted
     public boolean isSubmitted() {
