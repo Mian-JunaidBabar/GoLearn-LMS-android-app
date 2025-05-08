@@ -1,6 +1,7 @@
 package com.example.GoLearn.fragment;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,7 +14,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.GoLearn.R;
 import com.example.GoLearn.adapter.StudentAssignmentAdapter;
+import com.example.GoLearn.model.AssignmentItem;
 import com.example.GoLearn.model.StudentAssignmentItem;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,8 +32,11 @@ public class ClassAssignmentsFragment extends Fragment {
     private StudentAssignmentAdapter adapter;
     private List<StudentAssignmentItem> assignmentList;
 
+    private String classId;
+    private String currentUserId;
+    private DatabaseReference classRef;
+
     public ClassAssignmentsFragment() {
-        // Required empty public constructor
     }
 
     @Nullable
@@ -35,17 +46,74 @@ public class ClassAssignmentsFragment extends Fragment {
 
         recyclerView = view.findViewById(R.id.assignmentsRecyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-
         assignmentList = new ArrayList<>();
-//        assignmentList.add(new StudentAssignmentItem("Math Homework", "A001", "2025-05-03", "Complete exercises 1-10 from Chapter 5", "10", true, 8));
-//        assignmentList.add(new StudentAssignmentItem("Science Report", "A002", "2025-05-04", "Write a report on renewable energy sources", "20", false, 0));
-//        assignmentList.add(new StudentAssignmentItem("History Essay", "A003", "2025-05-05", "Discuss the causes of World War II", "15", true, 12));
-//        assignmentList.add(new StudentAssignmentItem("Art Project", "A004", "2025-05-06", "Create a painting inspired by nature", "25", false, 0));
-//        assignmentList.add(new StudentAssignmentItem("Computer Science Project", "A005", "2025-05-07", "Develop a simple calculator app", "30", true, 28));
-
         adapter = new StudentAssignmentAdapter(getContext(), assignmentList);
         recyclerView.setAdapter(adapter);
 
+        // Assume classId is passed via arguments
+        classId = getArguments().getString("classId");
+        currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        classRef = FirebaseDatabase.getInstance().getReference().child("classes").child(classId);
+
+        loadAssignments();
+
         return view;
+    }
+
+    private void loadAssignments() {
+        classRef.child("assignments").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot assignmentSnapshot) {
+                classRef.child("members").child(currentUserId).child("submittedAssignments")
+                        .addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot submissionSnapshot) {
+                                assignmentList.clear();
+
+                                for (DataSnapshot assn : assignmentSnapshot.getChildren()) {
+                                    AssignmentItem base = assn.getValue(AssignmentItem.class);
+                                    StudentAssignmentItem studentItem = new StudentAssignmentItem();
+
+                                    studentItem.setAssignmentId(base.getAssignmentId());
+                                    studentItem.setClassId(base.getClassId());
+                                    studentItem.setCreatedAt(base.getCreatedAt());
+                                    studentItem.setCreatedBy(base.getCreatedBy());
+                                    studentItem.setDescription(base.getDescription());
+                                    studentItem.setDueDate(base.getDueDate());
+                                    studentItem.setFilePath(base.getFilePath());
+                                    studentItem.setPoints(base.getPoints());
+                                    studentItem.setTitle(base.getTitle());
+
+                                    if (submissionSnapshot.hasChild(base.getAssignmentId())) {
+                                        DataSnapshot submittedData = submissionSnapshot.child(base.getAssignmentId());
+                                        int obtained = submittedData.child("obtainedPoints").exists()
+                                                ? submittedData.child("obtainedPoints").getValue(Integer.class)
+                                                : -1;
+
+                                        studentItem.setSubmitted(true);
+                                        studentItem.setObtainedPoints(obtained >= 0 ? obtained : -1);
+                                    } else {
+                                        studentItem.setSubmitted(false);
+                                        studentItem.setObtainedPoints(-1);
+                                    }
+
+                                    assignmentList.add(studentItem);
+                                }
+
+                                adapter.notifyDataSetChanged();
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+                                Log.e("Firebase", "Submission fetch error: " + error.getMessage());
+                            }
+                        });
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e("Firebase", "Assignment fetch error: " + error.getMessage());
+            }
+        });
     }
 }

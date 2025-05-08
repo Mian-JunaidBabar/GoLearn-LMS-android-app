@@ -14,7 +14,9 @@ import com.example.GoLearn.R;
 import com.example.GoLearn.model.StudentAssignmentItem;
 import com.example.GoLearn.AssignmentDetailActivity;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
+import java.util.Locale;
 
 public class StudentAssignmentAdapter extends RecyclerView.Adapter<StudentAssignmentAdapter.StudentViewHolder> {
 
@@ -33,15 +35,35 @@ public class StudentAssignmentAdapter extends RecyclerView.Adapter<StudentAssign
         return new StudentViewHolder(view);
     }
 
+
     @Override
     public void onBindViewHolder(@NonNull StudentViewHolder holder, int position) {
         StudentAssignmentItem item = studentAssignmentList.get(position);
 
         holder.title.setText(item.getTitle());
-        holder.dueDate.setText("Due: " + item.getDueDate());
+
+        // Convert dueDate string to a formatted date
+        try {
+            long dueDateMillis = item.getDueDate();
+            SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
+            String formattedDate = sdf.format(dueDateMillis);
+            holder.dueDate.setText("Due: " + formattedDate);
+        } catch (NumberFormatException e) {
+            holder.dueDate.setText("Due: Invalid Date");
+        }
+
         holder.points.setText("Points: " + item.getPoints());
         holder.status.setText(item.isSubmitted() ? "Submitted" : "Pending");
-        holder.obtainedPoints.setText("Obtained Points: " + item.getObtainedPoints());
+
+        if (item.isSubmitted()) {
+            if (item.getObtainedPoints() >= 0) {
+                holder.obtainedPoints.setText("Obtained Points: " + item.getObtainedPoints());
+            } else {
+                holder.obtainedPoints.setText("Obtained Points: Not graded yet");
+            }
+        } else {
+            holder.obtainedPoints.setText("Obtained Points: --");
+        }
 
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(context, AssignmentDetailActivity.class);

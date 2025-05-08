@@ -39,7 +39,7 @@ public class ManageHomeFragment extends Fragment {
     private RecyclerView assignmentsRecyclerView;
     private AssignmentAdapter assignmentAdapter;
     private ArrayList<AssignmentItem> assignmentList;
-    private String classId;
+    private String classId, classCode;
 
     @Nullable
     @Override
@@ -73,10 +73,28 @@ public class ManageHomeFragment extends Fragment {
         loadClassDetails();
         loadAssignments();
 
+        DatabaseReference classRef = FirebaseDatabase.getInstance().getReference("classes").child(classId);
+        classRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                classCode = snapshot.child("classCode").getValue(String.class);
+                if (classCode != null) {
+                    // Use the classCode as needed
+                } else {
+                    Toast.makeText(getContext(), "Class code not found", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(getContext(), "Failed to retrieve class code", Toast.LENGTH_SHORT).show();
+            }
+        });
+
         // Copy class code
         btnCopyCode.setOnClickListener(v -> {
             ClipboardManager clipboard = (ClipboardManager) requireContext().getSystemService(Context.CLIPBOARD_SERVICE);
-            ClipData clip = ClipData.newPlainText("Class Code", classId);
+            ClipData clip = ClipData.newPlainText("Class Code", classCode);
             clipboard.setPrimaryClip(clip);
             Toast.makeText(getContext(), "Class code copied", Toast.LENGTH_SHORT).show();
         });
@@ -85,7 +103,7 @@ public class ManageHomeFragment extends Fragment {
         btnShareCode.setOnClickListener(v -> {
             Intent shareIntent = new Intent(Intent.ACTION_SEND);
             shareIntent.setType("text/plain");
-            shareIntent.putExtra(Intent.EXTRA_TEXT, "Join my class using this code: " + classId);
+            shareIntent.putExtra(Intent.EXTRA_TEXT, "Join my class using this code: " + classCode);
             startActivity(Intent.createChooser(shareIntent, "Share Class Code"));
         });
 
