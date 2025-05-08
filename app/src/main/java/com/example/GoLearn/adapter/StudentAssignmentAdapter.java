@@ -13,6 +13,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.GoLearn.R;
 import com.example.GoLearn.model.StudentAssignmentItem;
 import com.example.GoLearn.AssignmentDetailActivity;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -22,10 +24,12 @@ public class StudentAssignmentAdapter extends RecyclerView.Adapter<StudentAssign
 
     private Context context;
     private List<StudentAssignmentItem> studentAssignmentList;
+    private FirebaseAuth auth;
 
     public StudentAssignmentAdapter(Context context, List<StudentAssignmentItem> studentAssignmentList) {
         this.context = context;
         this.studentAssignmentList = studentAssignmentList;
+        this.auth = FirebaseAuth.getInstance(); // Initialize FirebaseAuth
     }
 
     @NonNull
@@ -35,14 +39,13 @@ public class StudentAssignmentAdapter extends RecyclerView.Adapter<StudentAssign
         return new StudentViewHolder(view);
     }
 
-
     @Override
     public void onBindViewHolder(@NonNull StudentViewHolder holder, int position) {
         StudentAssignmentItem item = studentAssignmentList.get(position);
 
         holder.title.setText(item.getTitle());
 
-        // Convert dueDate string to a formatted date
+        // Convert dueDate to a formatted date
         try {
             long dueDateMillis = item.getDueDate();
             SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy", Locale.getDefault());
@@ -66,11 +69,16 @@ public class StudentAssignmentAdapter extends RecyclerView.Adapter<StudentAssign
         }
 
         holder.itemView.setOnClickListener(v -> {
+            FirebaseUser currentUser = auth.getCurrentUser();
+            if (currentUser == null) {
+                // Handle the case where the user is not logged in
+                return;
+            }
+
             Intent intent = new Intent(context, AssignmentDetailActivity.class);
-            intent.putExtra("title", item.getTitle());
-            intent.putExtra("dueDate", item.getDueDate());
-            intent.putExtra("description", item.getDescription());
-            intent.putExtra("points", item.getPoints());
+            intent.putExtra("assignmentId", item.getAssignmentId());
+            intent.putExtra("classId", item.getClassId());
+            intent.putExtra("currentUser", currentUser.getUid());
             context.startActivity(intent);
         });
     }
