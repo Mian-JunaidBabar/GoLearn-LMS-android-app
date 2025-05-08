@@ -9,16 +9,17 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 
 public class AssignmentDetailActivity extends AppCompatActivity {
 
@@ -36,6 +37,7 @@ public class AssignmentDetailActivity extends AppCompatActivity {
     private FirebaseAuth auth;
     private FirebaseFirestore db;
     private FirebaseStorage storage;
+    private DatabaseReference realtimeDb;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,8 +56,8 @@ public class AssignmentDetailActivity extends AppCompatActivity {
         auth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
         storage = FirebaseStorage.getInstance();
+        realtimeDb = FirebaseDatabase.getInstance().getReference();
 
-        // From intent
         assignmentId = getIntent().getStringExtra("assignmentId");
         classId = getIntent().getStringExtra("classId");
 
@@ -92,43 +94,63 @@ public class AssignmentDetailActivity extends AppCompatActivity {
                         String title = documentSnapshot.getString("title");
                         String description = documentSnapshot.getString("description");
                         Long points = documentSnapshot.getLong("points");
-                        assignmentFileUrl = documentSnapshot.getString("fileUrl"); // e.g. PDF uploaded by teacher
+                        assignmentFileUrl = documentSnapshot.getString("fileUrl");
 
                         titleText.setText(title);
                         descriptionText.setText(description);
                         pointsText.setText("Total Points: " + (points != null ? points : "N/A"));
                         obtainedPointsText.setText("Obtained Points: Not submitted");
 
-                        loadStudentSubmission();
+                        checkRealtimeSubmission();
                     }
                 });
     }
 
-    private void loadStudentSubmission() {
+    private void checkRealtimeSubmission() {
         String userId = auth.getCurrentUser().getUid();
 
-        db.collection("classes")
-                .document(classId)
-                .collection("assignments")
-                .document(assignmentId)
-                .collection("submissions")
-                .document(userId)
-                .get()
-                .addOnSuccessListener(snapshot -> {
-                    if (snapshot.exists()) {
-                        Long obtained = snapshot.getLong("points");
-                        if (obtained != null) {
-                            obtainedPointsText.setText("Obtained Points: " + obtained);
-                        } else {
-                            obtainedPointsText.setText("Submitted (Not yet graded)");
-                        }
-                    }
-                });
+        DatabaseReference submissionRef = realtimeDb
+                .child("classes")
+                .child(classId)
+                .child("assignments")
+                .child(assignmentId)
+                .child("submissions")
+                .child(userId);
+
+        submissionRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                if (snapshot.exists() && snapshot.child("fileUrl").getValue(String.class) != null) {
+                    Long points = snapshot.child("points").getValue(Long.class);
+                    obtainedPointsText.setText(points != null ?
+                            "Obtained Points: " + points :
+                            "Submitted (Not yet graded)");
+
+                    pickFileButton.setEnabled(false);
+                    pickFileButton.setAlpha(0.5f);
+                    submitButton.setEnabled(false);
+                    submitButton.setAlpha(0.5f);
+                    selectedFileText.setText("File already submitted.");
+                } else {
+                    obtainedPointsText.setText("Not submitted");
+                    pickFileButton.setEnabled(true);
+                    pickFileButton.setAlpha(1.0f);
+                    submitButton.setEnabled(true);
+                    submitButton.setAlpha(1.0f);
+                    selectedFileText.setText("No file selected.");
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                Toast.makeText(AssignmentDetailActivity.this, "Error checking submission", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void openFilePicker() {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("*/*"); // Allow all file types or use "application/pdf" for specific type
+        intent.setType("*/*");
         startActivityForResult(Intent.createChooser(intent, "Select File"), PICK_FILE_REQUEST);
     }
 
@@ -154,12 +176,14 @@ public class AssignmentDetailActivity extends AppCompatActivity {
                 .addOnSuccessListener(taskSnapshot -> ref.getDownloadUrl()
                         .addOnSuccessListener(uri -> {
                             saveSubmissionToFirestore(uri.toString());
+                            saveSubmissionToRealtime(uri.toString(), userId);
                         }))
                 .addOnFailureListener(e -> Toast.makeText(this, "Upload failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
 
     private void saveSubmissionToFirestore(String fileUrl) {
         String userId = auth.getCurrentUser().getUid();
+        String timestamp = String.valueOf(System.currentTimeMillis());
 
         db.collection("classes")
                 .document(classId)
@@ -167,24 +191,40 @@ public class AssignmentDetailActivity extends AppCompatActivity {
                 .document(assignmentId)
                 .collection("submissions")
                 .document(userId)
-                .set(new Submission(fileUrl, null)) // null points (not yet graded)
+                .set(new Submission(fileUrl, 0.0, timestamp))
                 .addOnSuccessListener(unused -> {
                     Toast.makeText(this, "Submitted successfully", Toast.LENGTH_SHORT).show();
                     obtainedPointsText.setText("Submitted (Not yet graded)");
                 });
     }
 
-    // Submission model class
+    private void saveSubmissionToRealtime(String fileUrl, String userId) {
+        String timestamp = String.valueOf(System.currentTimeMillis());
+
+        DatabaseReference ref = realtimeDb
+                .child("classes")
+                .child(classId)
+                .child("assignments")
+                .child(assignmentId)
+                .child("submissions")
+                .child(userId);
+
+        Submission submission = new Submission(fileUrl, 0.0, timestamp);
+        ref.setValue(submission);
+    }
+
     public static class Submission {
         public String fileUrl;
-        public Long points;
+        public double points;
+        public String timestamp;
 
         public Submission() {
         }
 
-        public Submission(String fileUrl, Long points) {
+        public Submission(String fileUrl, double points, String timestamp) {
             this.fileUrl = fileUrl;
             this.points = points;
+            this.timestamp = timestamp;
         }
     }
 }
