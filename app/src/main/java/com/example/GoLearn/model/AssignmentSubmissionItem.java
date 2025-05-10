@@ -6,6 +6,17 @@ public class AssignmentSubmissionItem {
     private String fileUrl;
     private String grade;
 
+    public AssignmentSubmissionItem(String studentName, String fileName, String grade) {
+        this.studentName = studentName;
+        this.fileName = fileName;
+        this.grade = grade;
+    }
+
+    public AssignmentSubmissionItem(String studentName, String grade) {
+        this.studentName = studentName;
+        this.grade = grade;
+    }
+
     public String getStudentName() {
         return studentName;
     }

@@ -13,6 +13,12 @@ public class StudentSubmissionItem {
         this.grade = grade;
     }
 
+    public StudentSubmissionItem(String studentName, String fileName, String grade) {
+        this.studentName = studentName;
+        this.fileName = fileName;
+        this.grade = grade;
+    }
+
     public String getStudentName() {
         return studentName;
     }

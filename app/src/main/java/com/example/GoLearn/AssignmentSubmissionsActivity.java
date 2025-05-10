@@ -1,28 +1,35 @@
 package com.example.GoLearn;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.GoLearn.adapter.AssignmentSubmissionAdapter;
 import com.example.GoLearn.model.AssignmentSubmissionItem;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class AssignmentSubmissionsActivity extends AppCompatActivity {
+
     private RecyclerView recyclerView;
     private AssignmentSubmissionAdapter adapter;
     private List<AssignmentSubmissionItem> submissionList;
-    private FirebaseFirestore db;
+    private DatabaseReference dbRef;
 
     TextView assignmentTitle, assignmentDescription, assignmentPoints;
     Button btnUpdate, btnDelete;
@@ -61,61 +68,82 @@ public class AssignmentSubmissionsActivity extends AppCompatActivity {
         adapter = new AssignmentSubmissionAdapter(this, submissionList, classId, assignmentId);
         recyclerView.setAdapter(adapter);
 
-        db = FirebaseFirestore.getInstance();
+        dbRef = FirebaseDatabase.getInstance().getReference();
 
         loadSubmissions();
     }
 
     private void loadSubmissions() {
-        db.collection("classes")
-                .document(classId)
-                .collection("assignments")
-                .document(assignmentId)
-                .collection("submissions")
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    submissionList.clear();
+        DatabaseReference submissionsRef = dbRef.child("classes").child(classId).child("assignments").child(assignmentId).child("submissions");
+        submissionsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                submissionList.clear();
+                List<DataSnapshot> submissionSnapshots = new ArrayList<>();
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    submissionSnapshots.add(snapshot);
+                }
 
-                    List<DocumentSnapshot> docs = queryDocumentSnapshots.getDocuments();
-                    if (docs.isEmpty()) {
-                        adapter.notifyDataSetChanged();
-                        return;
-                    }
+                if (submissionSnapshots.isEmpty()) {
+                    adapter.notifyDataSetChanged();
+                    return;
+                }
 
-                    final int[] loadedCount = {0};
-                    for (DocumentSnapshot doc : docs) {
-                        String userId = doc.getId();
-                        String fileUrl = doc.getString("fileUrl");
-                        long points = doc.contains("points") ? doc.getLong("points") : 0;
-                        String grade = (points > 0) ? String.valueOf(points) : "Not Graded";
-                        String fileName = extractFileName(fileUrl);
+                final int[] fetchCounter = {0};
+                final int totalSubmissions = submissionSnapshots.size();
 
-                        db.collection("users")
-                                .document(userId)
-                                .get()
-                                .addOnSuccessListener(userDoc -> {
-                                    String studentName = userDoc.getString("name");
-                                    submissionList.add(new AssignmentSubmissionItem(
-                                            studentName != null ? studentName : "Unknown",
-                                            fileName,
-                                            fileUrl,
-                                            grade
-                                    ));
+                for (DataSnapshot submissionSnapshot : submissionSnapshots) {
+                    String userId = submissionSnapshot.getKey();
+                    String fileUrl = submissionSnapshot.child("fileUrl").getValue(String.class);
+                    long points = submissionSnapshot.hasChild("points") ? (long) submissionSnapshot.child("points").getValue() : 0;
+                    String grade = (points > 0) ? String.valueOf(points) : "Not Graded";
+                    String fileName = extractFileName(fileUrl);
 
-                                    loadedCount[0]++;
-                                    if (loadedCount[0] == docs.size()) {
-                                        adapter.notifyDataSetChanged();
-                                    }
-                                })
-                                .addOnFailureListener(e -> {
-                                    loadedCount[0]++;
-                                    if (loadedCount[0] == docs.size()) {
-                                        adapter.notifyDataSetChanged();
-                                    }
-                                });
-                    }
-                })
-                .addOnFailureListener(e -> Toast.makeText(this, "Error loading submissions", Toast.LENGTH_SHORT).show());
+                    Log.d("LoadSubmissions", "Fetching user for ID: " + userId);
+
+                    DatabaseReference userRef = dbRef.child("users").child(userId);
+                    userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot userSnapshot) {
+                            String studentName = userSnapshot.child("name").getValue(String.class);
+                            Log.d("LoadSubmissions", "User ID: " + userId + ", Fetched Name: " + studentName);
+                            submissionList.add(new AssignmentSubmissionItem(
+                                    studentName != null ? studentName : "Unknown User",
+                                    fileName,
+                                    fileUrl,
+                                    grade
+                            ));
+                            fetchCounter[0]++;
+                            if (fetchCounter[0] == totalSubmissions) {
+                                Log.d("LoadSubmissions", "All submissions processed, notifying adapter");
+                                adapter.notifyDataSetChanged();
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {
+                            Log.e("LoadSubmissions", "Error fetching user data for " + userId, databaseError.toException());
+                            submissionList.add(new AssignmentSubmissionItem(
+                                    "Error Fetching Name",
+                                    fileName,
+                                    fileUrl,
+                                    grade
+                            ));
+                            fetchCounter[0]++;
+                            if (fetchCounter[0] == totalSubmissions) {
+                                Log.d("LoadSubmissions", "All submissions processed (with error), notifying adapter");
+                                adapter.notifyDataSetChanged();
+                            }
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(AssignmentSubmissionsActivity.this, "Error loading submissions", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private String extractFileName(String url) {
