@@ -21,7 +21,17 @@
         android:id="@+id/grade"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Grade: Not Graded" />
+        android:text="Points: Not Checked" />
+
+    <TextView
+        android:id="@+id/assignment_id_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="Assignment ID"
+        android:textColor="#888888"
+        android:textSize="12sp" />
+
 
     <LinearLayout
         android:layout_width="wrap_content"

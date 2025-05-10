@@ -45,6 +45,7 @@ public class AssignmentAdapter extends RecyclerView.Adapter<AssignmentAdapter.As
 
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(context, AssignmentSubmissionsActivity.class);
+            intent.putExtra("classId", item.getClassId());
             intent.putExtra("assignmentId", item.getAssignmentId());
             intent.putExtra("title", item.getTitle());
             intent.putExtra("dueDate", item.getDueDate());

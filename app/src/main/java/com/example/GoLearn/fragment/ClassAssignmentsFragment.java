@@ -64,50 +64,53 @@ public class ClassAssignmentsFragment extends Fragment {
         classRef.child("assignments").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot assignmentSnapshot) {
-                classRef.child("members").child(currentUserId).child("submittedAssignments")
-                        .addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot submissionSnapshot) {
-                                assignmentList.clear();
+                assignmentList.clear();
 
-                                for (DataSnapshot assn : assignmentSnapshot.getChildren()) {
-                                    AssignmentItem base = assn.getValue(AssignmentItem.class);
-                                    StudentAssignmentItem studentItem = new StudentAssignmentItem();
+                for (DataSnapshot assn : assignmentSnapshot.getChildren()) {
+                    AssignmentItem base = assn.getValue(AssignmentItem.class);
+                    StudentAssignmentItem studentItem = new StudentAssignmentItem();
 
-                                    studentItem.setAssignmentId(base.getAssignmentId());
-                                    studentItem.setClassId(base.getClassId());
-                                    studentItem.setCreatedAt(base.getCreatedAt());
-                                    studentItem.setCreatedBy(base.getCreatedBy());
-                                    studentItem.setDescription(base.getDescription());
-                                    studentItem.setDueDate(base.getDueDate());
-                                    studentItem.setFilePath(base.getFilePath());
-                                    studentItem.setPoints(base.getPoints());
-                                    studentItem.setTitle(base.getTitle());
+                    studentItem.setAssignmentId(base.getAssignmentId());
+                    studentItem.setClassId(base.getClassId());
+                    studentItem.setCreatedAt(base.getCreatedAt());
+                    studentItem.setCreatedBy(base.getCreatedBy());
+                    studentItem.setDescription(base.getDescription());
+                    studentItem.setDueDate(base.getDueDate());
+                    studentItem.setFilePath(base.getFilePath());
+                    studentItem.setPoints(base.getPoints());
+                    studentItem.setTitle(base.getTitle());
 
-                                    if (submissionSnapshot.hasChild(base.getAssignmentId())) {
-                                        DataSnapshot submittedData = submissionSnapshot.child(base.getAssignmentId());
-                                        int obtained = submittedData.child("obtainedPoints").exists()
-                                                ? submittedData.child("obtainedPoints").getValue(Integer.class)
-                                                : -1;
+                    String assignmentId = base.getAssignmentId();
+                    DatabaseReference submissionRef = classRef.child("assignments")
+                            .child(assignmentId)
+                            .child("submissions")
+                            .child(currentUserId);
 
-                                        studentItem.setSubmitted(true);
-                                        studentItem.setObtainedPoints(obtained >= 0 ? obtained : -1);
-                                    } else {
-                                        studentItem.setSubmitted(false);
-                                        studentItem.setObtainedPoints(-1);
-                                    }
+                    submissionRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot submissionSnapshot) {
+                            if (submissionSnapshot.exists() && submissionSnapshot.child("fileUrl").getValue(String.class) != null) {
+                                int obtained = submissionSnapshot.child("points").exists()
+                                        ? submissionSnapshot.child("points").getValue(Integer.class)
+                                        : -1;
 
-                                    assignmentList.add(studentItem);
-                                }
-
-                                adapter.notifyDataSetChanged();
+                                studentItem.setSubmitted(true);
+                                studentItem.setObtainedPoints(obtained >= 0 ? obtained : -1);
+                            } else {
+                                studentItem.setSubmitted(false);
+                                studentItem.setObtainedPoints(-1);
                             }
 
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError error) {
-                                Log.e("Firebase", "Submission fetch error: " + error.getMessage());
-                            }
-                        });
+                            assignmentList.add(studentItem);
+                            adapter.notifyDataSetChanged();
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+                            Log.e("Firebase", "Submission fetch error: " + error.getMessage());
+                        }
+                    });
+                }
             }
 
             @Override

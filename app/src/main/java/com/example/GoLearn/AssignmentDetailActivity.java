@@ -21,6 +21,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.util.Objects;
+
 public class AssignmentDetailActivity extends AppCompatActivity {
 
     private static final int PICK_FILE_REQUEST = 1001;
@@ -33,6 +35,7 @@ public class AssignmentDetailActivity extends AppCompatActivity {
     private String assignmentId;
     private String classId;
     private String assignmentFileUrl;
+    private String submissionFileUrl;
 
     private FirebaseAuth auth;
     private FirebaseFirestore db;
@@ -74,11 +77,14 @@ public class AssignmentDetailActivity extends AppCompatActivity {
         });
 
         viewFileButton.setOnClickListener(v -> {
-            if (assignmentFileUrl != null && !assignmentFileUrl.isEmpty()) {
+            if (submissionFileUrl != null && !submissionFileUrl.isEmpty()) {
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(submissionFileUrl));
+                startActivity(intent);
+            } else if (assignmentFileUrl != null && !assignmentFileUrl.isEmpty()) {
                 Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(assignmentFileUrl));
                 startActivity(intent);
             } else {
-                Toast.makeText(this, "No assignment file uploaded by teacher", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "No file available to view", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -107,7 +113,7 @@ public class AssignmentDetailActivity extends AppCompatActivity {
     }
 
     private void checkRealtimeSubmission() {
-        String userId = auth.getCurrentUser().getUid();
+        String userId = Objects.requireNonNull(auth.getCurrentUser()).getUid();
 
         DatabaseReference submissionRef = realtimeDb
                 .child("classes")
@@ -121,15 +127,18 @@ public class AssignmentDetailActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
                 if (snapshot.exists() && snapshot.child("fileUrl").getValue(String.class) != null) {
+                    submissionFileUrl = snapshot.child("fileUrl").getValue(String.class);
                     Long points = snapshot.child("points").getValue(Long.class);
                     obtainedPointsText.setText(points != null ?
                             "Obtained Points: " + points :
                             "Submitted (Not yet graded)");
 
+                    // Disable buttons after submission
                     pickFileButton.setEnabled(false);
                     pickFileButton.setAlpha(0.5f);
                     submitButton.setEnabled(false);
                     submitButton.setAlpha(0.5f);
+
                     selectedFileText.setText("File already submitted.");
                 } else {
                     obtainedPointsText.setText("Not submitted");
@@ -177,6 +186,17 @@ public class AssignmentDetailActivity extends AppCompatActivity {
                         .addOnSuccessListener(uri -> {
                             saveSubmissionToFirestore(uri.toString());
                             saveSubmissionToRealtime(uri.toString(), userId);
+                            submissionFileUrl = uri.toString();
+
+                            Toast.makeText(this, "Submitted successfully", Toast.LENGTH_SHORT).show();
+                            obtainedPointsText.setText("Submitted (Not yet graded)");
+                            selectedFileText.setText("File already submitted.");
+
+                            // Disable buttons
+                            pickFileButton.setEnabled(false);
+                            pickFileButton.setAlpha(0.5f);
+                            submitButton.setEnabled(false);
+                            submitButton.setAlpha(0.5f);
                         }))
                 .addOnFailureListener(e -> Toast.makeText(this, "Upload failed: " + e.getMessage(), Toast.LENGTH_SHORT).show());
     }
@@ -191,11 +211,7 @@ public class AssignmentDetailActivity extends AppCompatActivity {
                 .document(assignmentId)
                 .collection("submissions")
                 .document(userId)
-                .set(new Submission(fileUrl, 0.0, timestamp))
-                .addOnSuccessListener(unused -> {
-                    Toast.makeText(this, "Submitted successfully", Toast.LENGTH_SHORT).show();
-                    obtainedPointsText.setText("Submitted (Not yet graded)");
-                });
+                .set(new Submission(fileUrl, 0.0, timestamp));
     }
 
     private void saveSubmissionToRealtime(String fileUrl, String userId) {

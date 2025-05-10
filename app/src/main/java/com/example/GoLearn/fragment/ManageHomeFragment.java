@@ -145,8 +145,10 @@ public class ManageHomeFragment extends Fragment {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 assignmentList.clear();
                 for (DataSnapshot snap : snapshot.getChildren()) {
+                    String assignmentId = snap.getKey(); // Get the assignment ID from the key
                     AssignmentItem item = snap.getValue(AssignmentItem.class);
                     if (item != null) {
+                        item.setAssignmentId(assignmentId); // Set the assignment ID
                         assignmentList.add(item);
                     }
                 }
