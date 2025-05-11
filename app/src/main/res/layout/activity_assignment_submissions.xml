@@ -53,16 +53,9 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
+                android:gravity="center"
                 android:orientation="horizontal">
                 <!-- Buttons -->
-                <Button
-                    android:id="@+id/btn_update"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="20dp"
-                    android:backgroundTint="@color/freshGreen"
-                    android:text="Update Assignment" />
 
                 <Button
                     android:id="@+id/btn_delete"

@@ -72,12 +72,10 @@ public class AddAssignmentActivity extends AppCompatActivity {
         teacherId = FirebaseAuth.getInstance().getUid();
         classId = getIntent().getStringExtra("classId");
 
-        // ✅ Database: class-specific assignments
         assignmentsRef = FirebaseDatabase.getInstance().getReference("classes")
                 .child(classId)
                 .child("assignments");
 
-        // ✅ Storage: fixed path GoLearn/assignments/
         storageRef = FirebaseStorage.getInstance().getReference("GoLearn").child("assignments");
 
         etDueDate.setOnClickListener(v -> showDatePickerDialog());
@@ -87,7 +85,8 @@ public class AddAssignmentActivity extends AppCompatActivity {
                 if (fileUri != null) {
                     uploadFileThenSaveAssignment();
                 } else {
-                    saveAssignment(null);
+                    String assignmentId = assignmentsRef.push().getKey();
+                    saveAssignment(null, assignmentId);
                 }
             }
         });
@@ -140,19 +139,21 @@ public class AddAssignmentActivity extends AppCompatActivity {
     }
 
     private void uploadFileThenSaveAssignment() {
-        String fileName = classId + "_" + System.currentTimeMillis();
+        String assignmentId = assignmentsRef.push().getKey();
+        String fileName = "GoLearn/assignments/" + assignmentId + "/" + getFileName(fileUri);
         StorageReference fileRef = storageRef.child(fileName);
 
         fileRef.putFile(fileUri)
                 .addOnSuccessListener(taskSnapshot -> fileRef.getDownloadUrl().addOnSuccessListener(downloadUri -> {
-                    saveAssignment(downloadUri.toString());
+                    saveAssignment(downloadUri.toString(), assignmentId);
                 }))
                 .addOnFailureListener(e -> {
                     Toast.makeText(this, "File upload failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
 
-    private void saveAssignment(@Nullable String fileUrl) {
+
+    private void saveAssignment(@Nullable String fileUrl, String assignmentId) {
         String title = etTitle.getText().toString().trim();
         String description = etDescription.getText().toString().trim();
         String dueDateStr = etDueDate.getText().toString().trim();
@@ -162,7 +163,6 @@ public class AddAssignmentActivity extends AppCompatActivity {
 
         long dueTimestamp = parseDateToMillis(dueDateStr);
 
-        String assignmentId = assignmentsRef.push().getKey();
         Map<String, Object> assignmentData = new HashMap<>();
         assignmentData.put("assignmentId", assignmentId);
         assignmentData.put("classId", classId);
