@@ -1,5 +1,6 @@
 package com.example.GoLearn;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
@@ -41,9 +42,10 @@ public class TeacherClassesActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         teacherClassList = new ArrayList<>();
-        classAdapter = new ClassAdapter(this, teacherClassList, classItem -> {
+        classAdapter = new ClassAdapter(this, teacherClassList);
+        classAdapter.setOnItemClickListener(classItem -> {
             Intent intent = new Intent(this, ManageClassActivity.class);
-            intent.putExtra("classId", classItem.getId());
+            intent.putExtra("classId", classItem.getClassId());
             startActivity(intent);
         });
         recyclerView.setAdapter(classAdapter);
@@ -71,7 +73,9 @@ public class TeacherClassesActivity extends AppCompatActivity {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot teacherSnap) {
                             String teacherName = teacherSnap.getValue(String.class);
-                            teacherClassList.add(new ClassItem(id, title, description, R.drawable.ic_class, teacherName));
+                            ClassItem classItem = new ClassItem(id, title, description, R.drawable.ic_class, teacherName);
+                            classItem.setClassId(classSnapshot.getKey());
+                            teacherClassList.add(classItem);
                             classAdapter.notifyDataSetChanged();
                         }
 
