@@ -11,6 +11,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -22,8 +23,11 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -62,7 +66,7 @@ public class UpdateProfileActivity extends AppCompatActivity {
             return;
         }
 
-        userRef = FirebaseDatabase.getInstance().getReference("GoLearn/Users").child(currentUser.getUid());
+        userRef = FirebaseDatabase.getInstance().getReference("users").child(currentUser.getUid());
         loadUserData();
 
         btnChooseImage.setOnClickListener(v -> pickImageFromGallery());
@@ -85,26 +89,34 @@ public class UpdateProfileActivity extends AppCompatActivity {
     }
 
     private void loadUserData() {
-        userRef.get().addOnSuccessListener(snapshot -> {
-            if (snapshot.exists()) {
-                etName.setText(snapshot.child("name").getValue(String.class));
-                profileUrl = snapshot.child("profileUrl").getValue(String.class);
-                if (profileUrl == null || profileUrl.isEmpty()) {
-                    profileUrl = DEFAULT_IMAGE_URL;
+        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    etName.setText(snapshot.child("name").getValue(String.class));
+                    profileUrl = snapshot.child("profileUrl").getValue(String.class);
+                    if (profileUrl == null || profileUrl.isEmpty()) {
+                        profileUrl = DEFAULT_IMAGE_URL;
+                    }
+
+                    String glideUrl = profileUrl + "?t=" + System.currentTimeMillis(); // Force fresh load
+
+                    Glide.with(UpdateProfileActivity.this)
+                            .load(glideUrl)
+                            .apply(new RequestOptions()
+                                    .placeholder(R.drawable.ic_person_black)
+                                    .circleCrop()
+                                    .skipMemoryCache(true)
+                                    .diskCacheStrategy(DiskCacheStrategy.NONE))
+                            .into(imgProfile);
                 }
-
-                String glideUrl = profileUrl + "?t=" + System.currentTimeMillis(); // Force fresh load
-
-                Glide.with(this)
-                        .load(glideUrl)
-                        .apply(new RequestOptions()
-                                .placeholder(R.drawable.ic_person_black)
-                                .circleCrop()
-                                .skipMemoryCache(true)
-                                .diskCacheStrategy(DiskCacheStrategy.NONE))
-                        .into(imgProfile);
             }
-        }).addOnFailureListener(e -> tilName.setError("Failed to load profile"));
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                tilName.setError("Failed to load profile");
+            }
+        });
     }
 
     private void pickImageFromGallery() {
@@ -117,7 +129,11 @@ public class UpdateProfileActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 101 && resultCode == RESULT_OK && data != null) {
             selectedImageUri = data.getData();
-            imgProfile.setImageURI(selectedImageUri);
+            // Load the selected image into the ImageView
+            Glide.with(this)
+                    .load(selectedImageUri)
+                    .apply(RequestOptions.circleCropTransform())
+                    .into(imgProfile);
         }
     }
 
@@ -204,7 +220,7 @@ public class UpdateProfileActivity extends AppCompatActivity {
         if (currentUser == null) return;
 
         DatabaseReference userRef = FirebaseDatabase.getInstance()
-                .getReference("GoLearn/Users")
+                .getReference("users")
                 .child(currentUser.getUid());
 
         Map<String, Object> map = new HashMap<>();
@@ -232,7 +248,7 @@ public class UpdateProfileActivity extends AppCompatActivity {
         if (currentUser == null) return;
 
         DatabaseReference userRef = FirebaseDatabase.getInstance()
-                .getReference("GoLearn/Users")
+                .getReference("users")
                 .child(currentUser.getUid());
 
         Map<String, Object> map = new HashMap<>();
