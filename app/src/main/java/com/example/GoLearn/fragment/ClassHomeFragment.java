@@ -181,11 +181,12 @@ public class ClassHomeFragment extends Fragment {
                     .setTitle("Leave Class")
                     .setMessage("Are you sure you want to leave this class?")
                     .setPositiveButton("Yes", (dialog, which) -> {
+                        // Remove user from class members
                         DatabaseReference memberRef = classRef.child("members").child(currentUserId);
                         memberRef.removeValue().addOnCompleteListener(task -> {
                             if (task.isSuccessful()) {
-                                Toast.makeText(getContext(), "You have left the class.", Toast.LENGTH_SHORT).show();
-                                requireActivity().finish(); // Close activity
+                                // Remove class from user's enrolled classes
+                                removeUserFromEnrolledClasses(classId);
                             } else {
                                 Toast.makeText(getContext(), "Failed to leave the class. Try again.", Toast.LENGTH_SHORT).show();
                             }
@@ -193,6 +194,37 @@ public class ClassHomeFragment extends Fragment {
                     })
                     .setNegativeButton("No", (dialog, which) -> dialog.dismiss())
                     .show();
+        });
+    }
+
+    private void removeUserFromEnrolledClasses(String classId) {
+        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference("users")
+                .child(currentUserId)
+                .child("enrolledClasses");
+
+        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot classSnapshot : dataSnapshot.getChildren()) {
+                    String enrolledClassId = classSnapshot.getValue(String.class);
+                    if (classId.equals(enrolledClassId)) {
+                        classSnapshot.getRef().removeValue().addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                Toast.makeText(getContext(), "You have left the class.", Toast.LENGTH_SHORT).show();
+                                requireActivity().finish(); // Close activity
+                            } else {
+                                Toast.makeText(getContext(), "Failed to leave the class. Try again.", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                        return;
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                Toast.makeText(getContext(), "Failed to leave the class. Try again.", Toast.LENGTH_SHORT).show();
+            }
         });
     }
 
