@@ -179,7 +179,7 @@ public class SignupActivity extends AppCompatActivity {
     }
 
     private boolean isValidPassword(String password) {
-        if (password.length() < 6 || password.length() > 8) return false;
+        if (password.length() < 6 || password.length() > 15) return false;
         boolean hasDigit = password.matches(".*\\d.*");
         boolean hasAlpha = password.matches(".*[a-zA-Z].*");
         return hasDigit && hasAlpha;
