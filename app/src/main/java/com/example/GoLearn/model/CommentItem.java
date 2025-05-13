@@ -2,59 +2,40 @@ package com.example.GoLearn.model;
 
 public class CommentItem {
     private String commentId;
-    private String sender;
+    private String senderId;
+    private String senderName;
     private String message;
-    private String time;
-    private boolean sentByMe;
+    private String timestamp;
 
     public CommentItem() {
+        // Firebase needs empty constructor
     }
 
-    public CommentItem(String commentId, String sender, String message, String time, boolean sentByMe) {
+    public CommentItem(String commentId, String senderId, String senderName, String message, String timestamp) {
         this.commentId = commentId;
-        this.sender = sender;
+        this.senderId = senderId;
+        this.senderName = senderName;
         this.message = message;
-        this.time = time;
-        this.sentByMe = sentByMe;
+        this.timestamp = timestamp;
     }
 
     public String getCommentId() {
         return commentId;
     }
 
-    public String getSender() {
-        return sender;
+    public String getSenderId() {
+        return senderId;
+    }
+
+    public String getSenderName() {
+        return senderName;
     }
 
     public String getMessage() {
         return message;
     }
 
-    public String getTime() {
-        return time;
-    }
-
-    public boolean isSentByMe() {
-        return sentByMe;
-    }
-
-    public void setCommentId(String commentId) {
-        this.commentId = commentId;
-    }
-
-    public void setSender(String sender) {
-        this.sender = sender;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public void setTime(String time) {
-        this.time = time;
-    }
-
-    public void setSentByMe(boolean sentByMe) {
-        this.sentByMe = sentByMe;
+    public String getTimestamp() {
+        return timestamp;
     }
 }

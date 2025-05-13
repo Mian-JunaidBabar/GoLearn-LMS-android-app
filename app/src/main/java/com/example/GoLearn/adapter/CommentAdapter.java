@@ -15,21 +15,24 @@ import java.util.List;
 public class CommentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final int TYPE_SENT = 0;
     private static final int TYPE_RECEIVED = 1;
-    private List<CommentItem> commentList;
 
-    public CommentAdapter(List<CommentItem> commentList) {
+    private List<CommentItem> commentList;
+    private String currentUserId;
+
+    public CommentAdapter(List<CommentItem> commentList, String currentUserId) {
         this.commentList = commentList;
+        this.currentUserId = currentUserId;
     }
 
     @Override
     public int getItemViewType(int position) {
-        return commentList.get(position).isSentByMe() ? TYPE_SENT : TYPE_RECEIVED;
+        return commentList.get(position).getSenderId().equals(currentUserId) ? TYPE_SENT : TYPE_RECEIVED;
     }
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        int layout = (viewType == TYPE_SENT) ? R.layout.item_comment_sent : R.layout.item_comment_received;
-        View view = LayoutInflater.from(parent.getContext()).inflate(layout, parent, false);
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(viewType == TYPE_SENT ? R.layout.item_comment_sent : R.layout.item_comment_received, parent, false);
         return new MessageViewHolder(view);
     }
 
@@ -44,19 +47,17 @@ public class CommentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
     static class MessageViewHolder extends RecyclerView.ViewHolder {
-        TextView messageText, senderText, timeText;
+        TextView messageText, senderInfo;
 
         public MessageViewHolder(View itemView) {
             super(itemView);
             messageText = itemView.findViewById(R.id.message_text);
-            senderText = itemView.findViewById(R.id.sender_name);
-            timeText = itemView.findViewById(R.id.message_time);
+            senderInfo = itemView.findViewById(R.id.sender_info);
         }
 
         public void bind(CommentItem comment) {
             messageText.setText(comment.getMessage());
-            senderText.setText(comment.getSender());
-            timeText.setText(comment.getTime());
+            senderInfo.setText(comment.getSenderName() + " • " + comment.getTimestamp());
         }
     }
 }
