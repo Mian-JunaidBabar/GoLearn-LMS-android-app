@@ -15,7 +15,6 @@ import java.util.List;
 public class CommentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final int TYPE_SENT = 0;
     private static final int TYPE_RECEIVED = 1;
-
     private List<CommentItem> commentList;
 
     public CommentAdapter(List<CommentItem> commentList) {
@@ -29,8 +28,8 @@ public class CommentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(viewType == TYPE_SENT ? R.layout.item_comment_sent : R.layout.item_comment_received, parent, false);
+        int layout = (viewType == TYPE_SENT) ? R.layout.item_comment_sent : R.layout.item_comment_received;
+        View view = LayoutInflater.from(parent.getContext()).inflate(layout, parent, false);
         return new MessageViewHolder(view);
     }
 
@@ -45,15 +44,19 @@ public class CommentAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
     static class MessageViewHolder extends RecyclerView.ViewHolder {
-        TextView messageText;
+        TextView messageText, senderText, timeText;
 
         public MessageViewHolder(View itemView) {
             super(itemView);
             messageText = itemView.findViewById(R.id.message_text);
+            senderText = itemView.findViewById(R.id.sender_name);
+            timeText = itemView.findViewById(R.id.message_time);
         }
 
         public void bind(CommentItem comment) {
             messageText.setText(comment.getMessage());
+            senderText.setText(comment.getSender());
+            timeText.setText(comment.getTime());
         }
     }
 }

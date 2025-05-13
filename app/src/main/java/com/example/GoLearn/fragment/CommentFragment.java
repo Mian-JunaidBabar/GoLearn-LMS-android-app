@@ -17,6 +17,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.GoLearn.R;
 import com.example.GoLearn.adapter.CommentAdapter;
 import com.example.GoLearn.model.CommentItem;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.*;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -28,6 +30,8 @@ public class CommentFragment extends Fragment {
     private ImageButton sendButton;
     private List<CommentItem> commentList;
     private CommentAdapter adapter;
+    private DatabaseReference commentsRef;
+    private String currentUserId, currentUserName, classId = "classId123"; // replace with actual dynamic classId
 
     @Nullable
     @Override
@@ -39,25 +43,61 @@ public class CommentFragment extends Fragment {
         sendButton = view.findViewById(R.id.sendButton);
 
         commentList = new ArrayList<>();
-        // Sample static messages with time
-        commentList.add(new CommentItem("Teacher", "Welcome to the class!", "10:00 AM", false));
-        commentList.add(new CommentItem("Student", "Thank you, sir!", "10:05 AM", true));
-
         adapter = new CommentAdapter(commentList);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(adapter);
 
+        currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference("users").child(currentUserId);
+        commentsRef = FirebaseDatabase.getInstance().getReference("classes").child(classId).child("comments");
+
+        usersRef.child("name").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                currentUserName = snapshot.getValue(String.class);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+            }
+        });
+
+        loadComments();
+
         sendButton.setOnClickListener(v -> {
             String message = messageInput.getText().toString().trim();
             if (!message.isEmpty()) {
+                String commentId = commentsRef.push().getKey();
                 String currentTime = DateFormat.format("hh:mm a", new Date()).toString();
-                commentList.add(new CommentItem("Student", message, currentTime, true));
-                adapter.notifyItemInserted(commentList.size() - 1);
-                recyclerView.scrollToPosition(commentList.size() - 1);
+                CommentItem comment = new CommentItem(commentId, currentUserName, message, currentTime, true);
+
+                commentsRef.child(commentId).setValue(comment);
                 messageInput.setText("");
             }
         });
 
         return view;
+    }
+
+    private void loadComments() {
+        commentsRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                commentList.clear();
+                for (DataSnapshot data : snapshot.getChildren()) {
+                    CommentItem comment = data.getValue(CommentItem.class);
+                    if (comment != null) {
+                        comment.setSentByMe(comment.getSender().equals(currentUserName));
+                        commentList.add(comment);
+                    }
+                }
+                adapter.notifyDataSetChanged();
+                recyclerView.scrollToPosition(commentList.size() - 1);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+            }
+        });
     }
 }
