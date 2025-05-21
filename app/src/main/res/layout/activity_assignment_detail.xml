@@ -51,7 +51,8 @@
             android:id="@+id/view_assignment_file_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="8dp"
+            android:backgroundTint="@color/freshGreen"
             android:text="View/Download Assignment File" />
 
         <!-- File Picker Button -->
@@ -60,6 +61,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
+            android:backgroundTint="@color/primaryColor"
             android:text="Choose File to Submit" />
 
         <!-- Selected File Text -->
@@ -76,6 +78,7 @@
             android:id="@+id/submit_assignment_button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:backgroundTint="@color/freshGreen"
             android:text="Submit Assignment" />
 
     </LinearLayout>

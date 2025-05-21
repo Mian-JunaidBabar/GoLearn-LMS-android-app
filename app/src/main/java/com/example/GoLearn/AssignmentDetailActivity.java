@@ -77,15 +77,37 @@ public class AssignmentDetailActivity extends AppCompatActivity {
         });
 
         viewFileButton.setOnClickListener(v -> {
-            if (submissionFileUrl != null && !submissionFileUrl.isEmpty()) {
-                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(submissionFileUrl));
-                startActivity(intent);
-            } else if (assignmentFileUrl != null && !assignmentFileUrl.isEmpty()) {
-                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(assignmentFileUrl));
-                startActivity(intent);
-            } else {
-                Toast.makeText(this, "No file available to view", Toast.LENGTH_SHORT).show();
-            }
+            DatabaseReference assignmentRef = realtimeDb
+                    .child("classes")
+                    .child(classId)
+                    .child("assignments")
+                    .child(assignmentId);
+
+            assignmentRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.exists()) {
+                        assignmentFileUrl = dataSnapshot.child("filePath").getValue(String.class);
+
+                        if (submissionFileUrl != null && !submissionFileUrl.isEmpty()) {
+                            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(submissionFileUrl));
+                            startActivity(intent);
+                        } else if (assignmentFileUrl != null && !assignmentFileUrl.isEmpty()) {
+                            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(assignmentFileUrl));
+                            startActivity(intent);
+                        } else {
+                            Toast.makeText(AssignmentDetailActivity.this, "No file available to view", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Toast.makeText(AssignmentDetailActivity.this, "Assignment not found", Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    Toast.makeText(AssignmentDetailActivity.this, "Failed to load assignment details.", Toast.LENGTH_SHORT).show();
+                }
+            });
         });
     }
 
