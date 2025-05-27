@@ -38,7 +38,7 @@ crashlytics-build.properties
 
 # Google Services
 google-services.json
-
+c
 # NDK
 obj/
 
