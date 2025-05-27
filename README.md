@@ -6,12 +6,6 @@ Built by a solo developer as a **semester project**, it reflects the challenges,
 
 ---
 
-## 📸 Preview
-
-> (Add screenshots/gifs here if available)
-
----
-
 ## 🚀 Features
 
 ### 🧑‍🎓 Student Capabilities:
